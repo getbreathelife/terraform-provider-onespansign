@@ -1,4 +1,4 @@
-module github.com/hashicorp/terraform-provider-scaffolding
+module github.com/getbreathelife/terraform-provider-onespan-sign
 
 go 1.17
 
