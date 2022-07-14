@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"strings"
 
 	"github.com/getbreathelife/terraform-provider-onespan-sign/internal/api_client"
@@ -19,7 +20,7 @@ func resourceAccountSigningLogos() *schema.Resource {
 		// This description is used by the documentation generator and the language server.
 		Description: "OneSpan Sign account's customized logos used during the Signing Ceremony.",
 
-		CreateContext: resourceScaffoldingCreate,
+		CreateContext: resourceAccountSigningLogosCreate,
 		ReadContext:   resourceScaffoldingRead,
 		UpdateContext: resourceScaffoldingUpdate,
 		DeleteContext: resourceScaffoldingDelete,
@@ -98,23 +99,36 @@ func isValidImageData(v interface{}, p cty.Path) diag.Diagnostics {
 	return diags
 }
 
-func resourceScaffoldingCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAccountSigningLogosCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// use the meta value to retrieve your client from the provider configure method
 	c := meta.(*api_client.ApiClient)
 
 	var diags diag.Diagnostics
+	var b []api_client.SigningLogo
 
-	logos := d.Get("logo").(*schema.Set)
+	logos := d.Get("logo").(*schema.Set).List()
+	for _, v := range logos {
+		b = append(b, v.(api_client.SigningLogo))
+	}
 
-	idFromAPI := "my-id"
-	d.SetId(idFromAPI)
+	res, err := c.UpdateSigningLogos(b)
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		diags = append(diags, api_client.GetApiErrorDiag(res))
+		return diags
+	}
+
+	d.SetId(c.ClientId)
 
 	// write logs using the tflog package
 	// see https://pkg.go.dev/github.com/hashicorp/terraform-plugin-log/tflog
 	// for more information
-	tflog.Trace(ctx, "created a resource")
+	tflog.Trace(ctx, "created the account signing logos resource")
 
-	return diag.Errorf("not implemented")
+	return diags
 }
 
 func resourceScaffoldingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

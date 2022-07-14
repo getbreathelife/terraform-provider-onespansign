@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type ApiClientConfig struct {
@@ -26,7 +28,7 @@ type ApiClient struct {
 
 	client *http.Client
 
-	clientId     string
+	ClientId     string
 	clientSecret string
 }
 
@@ -50,7 +52,7 @@ func NewClient(config *ApiClientConfig) *ApiClient {
 		baseUrl:      config.BaseUrl,
 		ua:           config.UserAgent,
 		client:       client,
-		clientId:     config.ClientId,
+		ClientId:     config.ClientId,
 		clientSecret: config.ClientSecret,
 	}
 }
@@ -66,7 +68,7 @@ func (c *ApiClient) getAuthToken() (string, error) {
 		Path:   "/apitoken/clientApp/accessToken",
 	}
 
-	req, err := http.NewRequest("POST", url.String(), bytes.NewBuffer([]byte(fmt.Sprintf(`{"clientId":"%s","secret":"%s","type":"OWNER"}`, c.clientId, c.clientSecret))))
+	req, err := http.NewRequest("POST", url.String(), bytes.NewBuffer([]byte(fmt.Sprintf(`{"clientId":"%s","secret":"%s","type":"OWNER"}`, c.ClientId, c.clientSecret))))
 	if err != nil {
 		return "", err
 	}
@@ -142,4 +144,33 @@ func UnmarshalApiErrorResponse(res *http.Response) (*ErrorResponse, error) {
 	}
 
 	return &jsonResp, nil
+}
+
+func GetApiErrorDiag(res *http.Response) diag.Diagnostic {
+	diag := diag.Diagnostic{
+		Severity: diag.Error,
+		Summary:  "invalid response from the API",
+	}
+
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		diag.Detail = "unable to read the response"
+		return diag
+	}
+
+	var detail bytes.Buffer
+
+	if err = json.Indent(&detail, body, "", "\t"); err == nil {
+		diag.Detail = "unable to parse the response"
+		return diag
+	}
+
+	errMsg, err := io.ReadAll(&detail)
+	if err != nil {
+		diag.Detail = "unable to read the parsed response"
+		return diag
+	}
+
+	diag.Detail = string(errMsg)
+	return diag
 }
