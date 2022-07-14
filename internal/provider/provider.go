@@ -3,6 +3,8 @@ package provider
 import (
 	"context"
 
+	"github.com/getbreathelife/terraform-provider-onespan-sign/internal/api_client"
+
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -26,11 +28,27 @@ func init() {
 func New(version string) func() *schema.Provider {
 	return func() *schema.Provider {
 		p := &schema.Provider{
-			DataSourcesMap: map[string]*schema.Resource{
-				"scaffolding_data_source": dataSourceScaffolding(),
+			Schema: map[string]*schema.Schema{
+				"environment_url": {
+					Type:        schema.TypeString,
+					Required:    true,
+					Description: "Environment URL for the OneSpan sign account. For the list of available URLs, please visit [Environment URLs & IP Addresses (OneSpan Sign)](https://community.onespan.com/documentation/onespan-sign/guides/quick-start-guides/developer/environment-urls-ip-addresses).",
+				},
+				"client_id": {
+					Type:        schema.TypeString,
+					Required:    true,
+					Description: "Client ID of the [OneSpan Sign Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) created for this provider.",
+				},
+				"client_secret": {
+					Type:        schema.TypeString,
+					Required:    true,
+					Sensitive:   true,
+					Description: "Client secret of the [OneSpan Sign Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) created for this provider.",
+				},
 			},
+			DataSourcesMap: map[string]*schema.Resource{},
 			ResourcesMap: map[string]*schema.Resource{
-				"scaffolding_resource": resourceScaffolding(),
+				"account_signing_logos_resource": resourceAccountSigningLogos(),
 			},
 		}
 
@@ -40,18 +58,17 @@ func New(version string) func() *schema.Provider {
 	}
 }
 
-type apiClient struct {
-	// Add whatever fields, client or connection info, etc. here
-	// you would need to setup to communicate with the upstream
-	// API.
-}
-
 func configure(version string, p *schema.Provider) func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
-	return func(context.Context, *schema.ResourceData) (interface{}, diag.Diagnostics) {
-		// Setup a User-Agent for your API client (replace the provider name for yours):
-		// userAgent := p.UserAgent("terraform-provider-scaffolding", version)
-		// TODO: myClient.UserAgent = userAgent
+	return func(ctx context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
+		url := d.Get("environment_url").(string)
+		id := d.Get("client_id").(string)
+		secret := d.Get("client_secret").(string)
 
-		return &apiClient{}, nil
+		return api_client.NewClient(&api_client.ApiClientConfig{
+			BaseUrl:      url,
+			ClientId:     id,
+			ClientSecret: secret,
+			UserAgent:    p.UserAgent("terraform-provider-onespan-sign", version),
+		}), nil
 	}
 }
