@@ -166,8 +166,13 @@ func resourceAccountSigningLogosUpdate(ctx context.Context, d *schema.ResourceDa
 	var b []ossign.SigningLogo
 
 	logos := d.Get("logo").(*schema.Set).List()
-	for _, v := range logos {
-		b = append(b, v.(ossign.SigningLogo))
+	for _, item := range logos {
+		i := item.(map[string]interface{})
+
+		b = append(b, ossign.SigningLogo{
+			Language: i["language"].(string),
+			Image:    i["image"].(string),
+		})
 	}
 
 	if err := c.UpdateSigningLogos(b); err != nil {

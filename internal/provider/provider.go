@@ -48,7 +48,8 @@ func New(version string) func() *schema.Provider {
 			},
 			DataSourcesMap: map[string]*schema.Resource{},
 			ResourcesMap: map[string]*schema.Resource{
-				"account_signing_logos_resource": resourceAccountSigningLogos(),
+				"account_signing_logos_resource":   resourceAccountSigningLogos(),
+				"data_retention_settings_resource": resourceDataRetentionSettings(),
 			},
 		}
 
