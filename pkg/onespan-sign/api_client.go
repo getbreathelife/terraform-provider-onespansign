@@ -31,8 +31,9 @@ type ApiClient struct {
 }
 
 type ApiError struct {
-	Summary string
-	Detail  string
+	HttpResponse *http.Response
+	Summary      string
+	Detail       string
 }
 
 type accessTokenResponse struct {
@@ -105,13 +106,16 @@ func (c *ApiClient) getAuthToken() (string, error) {
 	return c.token, nil
 }
 
-// newApiRequest creates a HTTP request to the OneSpan Sign API host configured in the ApiClient.
+// makeApiRequest makes a HTTP request to the OneSpan Sign API host configured in the ApiClient.
 // It accepts a HTTP method string, path (not full URL) to the API resource, and the request body.
 // It also automatically retrieves the access token for the API and inserts it to the request's Authorization header.
-func (c *ApiClient) newApiRequest(method string, path string, body io.Reader) (*http.Request, error) {
+func (c *ApiClient) makeApiRequest(method string, path string, body io.Reader) (*http.Response, *ApiError) {
 	token, err := c.getAuthToken()
 	if err != nil {
-		return nil, err
+		return nil, &ApiError{
+			Summary: "unable to create the API request",
+			Detail:  err.Error(),
+		}
 	}
 
 	url := &url.URL{
@@ -122,7 +126,10 @@ func (c *ApiClient) newApiRequest(method string, path string, body io.Reader) (*
 
 	req, err := http.NewRequest(method, url.String(), body)
 	if err != nil {
-		return nil, err
+		return nil, &ApiError{
+			Summary: "unable to create the API request",
+			Detail:  err.Error(),
+		}
 	}
 
 	req.Header.Set("Accept", fmt.Sprintf("application/json; esl-api-version=%s", API_VERSION))
@@ -130,7 +137,16 @@ func (c *ApiClient) newApiRequest(method string, path string, body io.Reader) (*
 	req.Header.Set("User-Agent", c.ua)
 	req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", token))
 
-	return req, nil
+	res, err := c.client.Do(req)
+
+	if err != nil {
+		return nil, &ApiError{
+			Summary: "unable to send the API request",
+			Detail:  err.Error(),
+		}
+	}
+
+	return res, nil
 }
 
 func UnmarshalApiErrorResponse(res *http.Response) (*ErrorResponse, error) {
@@ -152,7 +168,8 @@ func jsonDecode(r io.Reader, v interface{}) error {
 
 func getApiError(res *http.Response) *ApiError {
 	apiErr := &ApiError{
-		Summary: "invalid response from the API",
+		HttpResponse: res,
+		Summary:      "invalid response from the API",
 	}
 
 	body, err := io.ReadAll(res.Body)

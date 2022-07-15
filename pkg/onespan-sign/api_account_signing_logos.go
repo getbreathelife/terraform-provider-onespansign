@@ -11,8 +11,6 @@ type SigningLogo struct {
 	Image    string `json:"image"`
 }
 
-const API_PATH = "/api/account/admin/signingLogos"
-
 // UpdateSigningLogos Adds, updates or deletes an account's customized Signing Ceremony logos.
 //
 // https://community.onespan.com/products/onespan-sign/sandbox#/Account%20Signing%20Logos/api.account.admin.signingLogos.post
@@ -34,22 +32,10 @@ func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) *ApiError {
 		body = []byte("{}")
 	}
 
-	req, err := c.newApiRequest("POST", API_PATH, bytes.NewBuffer(body))
+	res, err := c.makeApiRequest("POST", "/api/account/admin/signingLogos", bytes.NewBuffer(body))
 
 	if err != nil {
-		return &ApiError{
-			Summary: "unable to create the API request",
-			Detail:  err.Error(),
-		}
-	}
-
-	res, err := c.client.Do(req)
-
-	if err != nil {
-		return &ApiError{
-			Summary: "unable to send the API request",
-			Detail:  err.Error(),
-		}
+		return err
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -63,22 +49,10 @@ func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) *ApiError {
 //
 // https://community.onespan.com/products/onespan-sign/sandbox#/Account%20Signing%20Logos/api.account.admin.signingLogos.get
 func (c *ApiClient) GetSigningLogos() ([]SigningLogo, *ApiError) {
-	req, err := c.newApiRequest("GET", API_PATH, nil)
+	res, err := c.makeApiRequest("GET", "/api/account/admin/signingLogos", nil)
 
 	if err != nil {
-		return nil, &ApiError{
-			Summary: "unable to create the API request",
-			Detail:  err.Error(),
-		}
-	}
-
-	res, err := c.client.Do(req)
-
-	if err != nil {
-		return nil, &ApiError{
-			Summary: "unable to send the API request",
-			Detail:  err.Error(),
-		}
+		return nil, err
 	}
 
 	if res.StatusCode != http.StatusOK {
