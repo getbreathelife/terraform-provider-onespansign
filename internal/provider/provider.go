@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespansign/client"
+	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"

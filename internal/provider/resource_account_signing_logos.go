@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespansign/client"
+	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
