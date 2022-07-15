@@ -3,6 +3,8 @@ package provider
 import (
 	"context"
 
+	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
@@ -13,9 +15,9 @@ func resourceDataManagementPolicy() *schema.Resource {
 		Description: "OneSpan Sign account's data management policy.",
 
 		CreateContext: resourceDataManagementPolicyCreate,
-		ReadContext:   schema.NoopContext,
-		UpdateContext: schema.NoopContext,
-		DeleteContext: schema.NoopContext,
+		ReadContext:   resourceDataManagementPolicyRead,
+		UpdateContext: resourceDataManagementPolicyUpdate,
+		DeleteContext: resourceDataManagementPolicyDelete,
 
 		Schema: map[string]*schema.Schema{
 			"transaction_retention": {
@@ -78,6 +80,109 @@ func resourceDataManagementPolicy() *schema.Resource {
 	}
 }
 
+func flattenTransactionRetention(tr ossign.TransactionRetention) interface{} {
+	trm := make(map[string]interface{}, 7)
+
+	trm["draft"] = tr.Draft
+	trm["sent"] = tr.Sent
+	trm["completed"] = tr.Completed
+	trm["archived"] = tr.Archived
+	trm["declined"] = tr.Declined
+	trm["opted_out"] = tr.OptedOut
+	trm["expired"] = tr.Expired
+
+	return trm
+}
+
 func resourceDataManagementPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	return diag.Errorf("not implemented")
+	var diags diag.Diagnostics
+
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "updating (replacing) resource instead of creating",
+		Detail:   "This resource is a singleton. It only supports retrieval or replacement operations.",
+	})
+
+	diags = append(diags, resourceDataManagementPolicyUpdate(ctx, d, meta)...)
+
+	return diags
+}
+
+func resourceDataManagementPolicyRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// use the meta value to retrieve your client from the provider configure method
+	c := meta.(*ossign.ApiClient)
+
+	var diags diag.Diagnostics
+
+	dmp, err := c.GetDataManagementPolicy()
+
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  err.Summary,
+			Detail:   err.Detail,
+		})
+		return diags
+	}
+
+	tr := flattenTransactionRetention(dmp.TransactionRetention)
+
+	if err := d.Set("transaction_retention", []interface{}{tr}); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return diags
+}
+
+func resourceDataManagementPolicyUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// use the meta value to retrieve your client from the provider configure method
+	c := meta.(*ossign.ApiClient)
+
+	var diags diag.Diagnostics
+	var tr *ossign.TransactionRetention
+
+	trs := d.Get("transaction_retention").(*schema.Set).List()
+
+	if len(trs) > 0 {
+		i := trs[0].(map[string]interface{})
+
+		tr = &ossign.TransactionRetention{
+			Draft:     i["draft"].(int64),
+			Sent:      i["sent"].(int64),
+			Completed: i["completed"].(int64),
+			Archived:  i["archived"].(int64),
+			Declined:  i["declined"].(int64),
+			OptedOut:  i["opted_out"].(int64),
+			Expired:   i["expired"].(int64),
+		}
+	}
+
+	if tr != nil {
+		b := ossign.DataManagementPolicy{
+			TransactionRetention: *tr,
+		}
+
+		if err := c.UpdateDataManagementPolicy(b); err != nil {
+			diags = append(diags, diag.Diagnostic{
+				Severity: diag.Error,
+				Summary:  err.Summary,
+				Detail:   err.Detail,
+			})
+			return diags
+		}
+
+		tflog.Trace(ctx, "updated the account's data management policy resource")
+	}
+
+	return resourceDataManagementPolicyRead(ctx, d, meta)
+}
+
+func resourceDataManagementPolicyDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "no deletion will take place",
+			Detail:   "This resource is a singleton. It only supports retrieval or replacement operations.",
+		},
+	}
 }

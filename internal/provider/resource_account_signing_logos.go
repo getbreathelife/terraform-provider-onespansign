@@ -25,7 +25,7 @@ func resourceAccountSigningLogos() *schema.Resource {
 		CreateContext: resourceAccountSigningLogosCreate,
 		ReadContext:   resourceAccountSigningLogosRead,
 		UpdateContext: resourceAccountSigningLogosUpdate,
-		DeleteContext: resourceScaffoldingDelete,
+		DeleteContext: resourceAccountSigningLogosDelete,
 
 		Schema: map[string]*schema.Schema{
 			"logo": {
@@ -184,19 +184,15 @@ func resourceAccountSigningLogosUpdate(ctx context.Context, d *schema.ResourceDa
 		return diags
 	}
 
-	d.SetId(c.ClientId)
-
 	// write logs using the tflog package
 	// see https://pkg.go.dev/github.com/hashicorp/terraform-plugin-log/tflog
 	// for more information
 	tflog.Trace(ctx, "updated the account signing logos resource")
 
-	resourceAccountSigningLogosRead(ctx, d, meta)
-
-	return diags
+	return resourceAccountSigningLogosRead(ctx, d, meta)
 }
 
-func resourceScaffoldingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceAccountSigningLogosDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	return diag.Diagnostics{
 		diag.Diagnostic{
 			Severity: diag.Warning,
