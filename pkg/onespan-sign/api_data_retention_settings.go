@@ -8,25 +8,25 @@ import (
 
 type TransactionRetention struct {
 	// Number of days to keep drafts for
-	Draft int64 `json:"draft"`
+	Draft json.Number `json:"draft"`
 
 	// Number of days to keep sent transactions for
-	Sent int64 `json:"sent"`
+	Sent json.Number `json:"sent"`
 
 	// Number of days to keep completed transactions for
-	Completed int64 `json:"completed"`
+	Completed json.Number `json:"completed"`
 
 	// Number of days to keep archived transactions for
-	Archived int64 `json:"archived"`
+	Archived json.Number `json:"archived"`
 
 	// Number of days to keep declined transactions for
-	Declined int64 `json:"declined"`
+	Declined json.Number `json:"declined"`
 
 	// Number of days to keep opted-out transactions for
-	OptedOut int64 `json:"optedOut"`
+	OptedOut json.Number `json:"optedOut"`
 
 	// Number of days to keep expired transactions for
-	Expired int64 `json:"expired"`
+	Expired json.Number `json:"expired"`
 }
 
 type DataManagementPolicy struct {
@@ -35,10 +35,10 @@ type DataManagementPolicy struct {
 
 type ExpiryTimeConfiguration struct {
 	// Default expiry time for transactions in days
-	Default int64 `json:"remainingDays"`
+	Default json.Number `json:"remainingDays"`
 
 	// Maximum allowed value for expiry time for transactions in days
-	Maximum int64 `json:"maximumRemainingDays"`
+	Maximum json.Number `json:"maximumRemainingDays"`
 }
 
 func (c *ApiClient) GetDataManagementPolicy() (*DataManagementPolicy, *ApiError) {

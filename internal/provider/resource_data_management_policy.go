@@ -3,6 +3,7 @@ package provider
 import (
 	"context"
 
+	"github.com/getbreathelife/terraform-provider-onespan-sign/internal/helpers"
 	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -147,13 +148,13 @@ func resourceDataManagementPolicyUpdate(ctx context.Context, d *schema.ResourceD
 		i := trs[0].(map[string]interface{})
 
 		tr = &ossign.TransactionRetention{
-			Draft:     i["draft"].(int64),
-			Sent:      i["sent"].(int64),
-			Completed: i["completed"].(int64),
-			Archived:  i["archived"].(int64),
-			Declined:  i["declined"].(int64),
-			OptedOut:  i["opted_out"].(int64),
-			Expired:   i["expired"].(int64),
+			Draft:     helpers.GetJsonNumber(i["draft"].(int64), 10),
+			Sent:      helpers.GetJsonNumber(i["sent"].(int64), 10),
+			Completed: helpers.GetJsonNumber(i["completed"].(int64), 10),
+			Archived:  helpers.GetJsonNumber(i["archived"].(int64), 10),
+			Declined:  helpers.GetJsonNumber(i["declined"].(int64), 10),
+			OptedOut:  helpers.GetJsonNumber(i["opted_out"].(int64), 10),
+			Expired:   helpers.GetJsonNumber(i["expired"].(int64), 10),
 		}
 	}
 
