@@ -13,18 +13,80 @@ type SigningLogo struct {
 
 const API_PATH = "/api/account/admin/signingLogos"
 
-func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) (*http.Response, error) {
-	body, err := json.Marshal(d)
+func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) *ApiError {
+	var body []byte
 
-	if err != nil {
-		return nil, err
+	if len(d) > 0 {
+		var err error
+
+		body, err = json.Marshal(d)
+
+		if err != nil {
+			return &ApiError{
+				Summary: "unable to marshal the request body",
+				Detail:  err.Error(),
+			}
+		}
+	} else {
+		body = []byte("{}")
 	}
 
 	req, err := c.newApiRequest("POST", API_PATH, bytes.NewBuffer(body))
 
 	if err != nil {
-		return nil, err
+		return &ApiError{
+			Summary: "unable to create the API request",
+			Detail:  err.Error(),
+		}
 	}
 
-	return c.client.Do(req)
+	res, err := c.client.Do(req)
+
+	if err != nil {
+		return &ApiError{
+			Summary: "unable to send the API request",
+			Detail:  err.Error(),
+		}
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return getApiError(res)
+	}
+
+	return nil
+}
+
+func (c *ApiClient) GetSigningLogos() ([]SigningLogo, *ApiError) {
+	req, err := c.newApiRequest("GET", API_PATH, nil)
+
+	if err != nil {
+		return nil, &ApiError{
+			Summary: "unable to create the API request",
+			Detail:  err.Error(),
+		}
+	}
+
+	res, err := c.client.Do(req)
+
+	if err != nil {
+		return nil, &ApiError{
+			Summary: "unable to send the API request",
+			Detail:  err.Error(),
+		}
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return nil, getApiError(res)
+	}
+
+	var jsonResp []SigningLogo
+
+	if err := jsonDecode(res.Body, &jsonResp); err != nil {
+		return nil, &ApiError{
+			Summary: "unable to unmarshal the API response",
+			Detail:  err.Error(),
+		}
+	}
+
+	return jsonResp, nil
 }

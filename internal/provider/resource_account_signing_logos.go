@@ -3,7 +3,6 @@ package provider
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"strings"
 
 	"github.com/getbreathelife/terraform-provider-onespan-sign/internal/api_client"
@@ -18,11 +17,14 @@ import (
 func resourceAccountSigningLogos() *schema.Resource {
 	return &schema.Resource{
 		// This description is used by the documentation generator and the language server.
-		Description: "OneSpan Sign account's customized logos used during the Signing Ceremony.",
+		Description: `OneSpan Sign account's customized logos used during the Signing Ceremony.
+		
+		Please note that this resource is a singleton, which means that only one instance of this resource should
+		exist. Having multiple instances may produce unexpected result.`,
 
 		CreateContext: resourceAccountSigningLogosCreate,
-		ReadContext:   resourceScaffoldingRead,
-		UpdateContext: resourceScaffoldingUpdate,
+		ReadContext:   resourceAccountSigningLogosRead,
+		UpdateContext: resourceAccountSigningLogosUpdate,
 		DeleteContext: resourceScaffoldingDelete,
 
 		Schema: map[string]*schema.Schema{
@@ -99,7 +101,60 @@ func isValidImageData(v interface{}, p cty.Path) diag.Diagnostics {
 	return diags
 }
 
+func flattenAccountSigningLogos(logos []api_client.SigningLogo) []interface{} {
+	ls := make([]interface{}, len(logos))
+
+	for i, v := range logos {
+		e := make(map[string]interface{})
+
+		e["language"] = v.Language
+		e["image"] = v.Image
+
+		ls[i] = e
+	}
+
+	return ls
+}
+
 func resourceAccountSigningLogosCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	diags = append(diags, diag.Diagnostic{
+		Severity: diag.Warning,
+		Summary:  "updating (replacing) resource instead of creating",
+		Detail:   "This resource is a singleton. It only supports retrieval or replacement operations.",
+	})
+
+	diags = append(diags, resourceAccountSigningLogosUpdate(ctx, d, meta)...)
+
+	return diags
+}
+
+func resourceAccountSigningLogosRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	// use the meta value to retrieve your client from the provider configure method
+	c := meta.(*api_client.ApiClient)
+
+	var diags diag.Diagnostics
+
+	logos, err := c.GetSigningLogos()
+
+	if err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  err.Summary,
+			Detail:   err.Detail,
+		})
+		return diags
+	}
+
+	if err := d.Set("logo", flattenAccountSigningLogos(logos)); err != nil {
+		return diag.FromErr(err)
+	}
+
+	return diags
+}
+
+func resourceAccountSigningLogosUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// use the meta value to retrieve your client from the provider configure method
 	c := meta.(*api_client.ApiClient)
 
@@ -111,13 +166,12 @@ func resourceAccountSigningLogosCreate(ctx context.Context, d *schema.ResourceDa
 		b = append(b, v.(api_client.SigningLogo))
 	}
 
-	res, err := c.UpdateSigningLogos(b)
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	if res.StatusCode != http.StatusOK {
-		diags = append(diags, api_client.GetApiErrorDiag(res))
+	if err := c.UpdateSigningLogos(b); err != nil {
+		diags = append(diags, diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  err.Summary,
+			Detail:   err.Detail,
+		})
 		return diags
 	}
 
@@ -126,28 +180,19 @@ func resourceAccountSigningLogosCreate(ctx context.Context, d *schema.ResourceDa
 	// write logs using the tflog package
 	// see https://pkg.go.dev/github.com/hashicorp/terraform-plugin-log/tflog
 	// for more information
-	tflog.Trace(ctx, "created the account signing logos resource")
+	tflog.Trace(ctx, "updated the account signing logos resource")
+
+	resourceAccountSigningLogosRead(ctx, d, meta)
 
 	return diags
 }
 
-func resourceScaffoldingRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// use the meta value to retrieve your client from the provider configure method
-	// client := meta.(*apiClient)
-
-	return diag.Errorf("not implemented")
-}
-
-func resourceScaffoldingUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// use the meta value to retrieve your client from the provider configure method
-	// client := meta.(*apiClient)
-
-	return diag.Errorf("not implemented")
-}
-
 func resourceScaffoldingDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// use the meta value to retrieve your client from the provider configure method
-	// client := meta.(*apiClient)
-
-	return diag.Errorf("not implemented")
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Warning,
+			Summary:  "no deletion will take place",
+			Detail:   "This resource is a singleton. It only supports retrieval or replacement operations.",
+		},
+	}
 }

@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 )
 
 type ApiClientConfig struct {
@@ -30,6 +28,11 @@ type ApiClient struct {
 
 	ClientId     string
 	clientSecret string
+}
+
+type ApiError struct {
+	Summary string
+	Detail  string
 }
 
 type accessTokenResponse struct {
@@ -82,12 +85,9 @@ func (c *ApiClient) getAuthToken() (string, error) {
 		return "", err
 	}
 
-	d := json.NewDecoder(resp.Body)
-	d.UseNumber()
-
 	var jsonResp accessTokenResponse
 
-	if err := d.Decode(&jsonResp); err != nil {
+	if err := jsonDecode(resp.Body, &jsonResp); err != nil {
 		return "", err
 	}
 
@@ -134,43 +134,46 @@ func (c *ApiClient) newApiRequest(method string, path string, body io.Reader) (*
 }
 
 func UnmarshalApiErrorResponse(res *http.Response) (*ErrorResponse, error) {
-	d := json.NewDecoder(res.Body)
-	d.UseNumber()
-
 	var jsonResp ErrorResponse
 
-	if err := d.Decode(&jsonResp); err != nil {
+	if err := jsonDecode(res.Body, &jsonResp); err != nil {
 		return nil, err
 	}
 
 	return &jsonResp, nil
 }
 
-func GetApiErrorDiag(res *http.Response) diag.Diagnostic {
-	diag := diag.Diagnostic{
-		Severity: diag.Error,
-		Summary:  "invalid response from the API",
+// jsonDecode creates a JSON decoder that reads from r and stores the decoded value in the value pointed to by v
+func jsonDecode(r io.Reader, v interface{}) error {
+	d := json.NewDecoder(r)
+	d.UseNumber()
+	return d.Decode(v)
+}
+
+func getApiError(res *http.Response) *ApiError {
+	apiErr := &ApiError{
+		Summary: "invalid response from the API",
 	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		diag.Detail = "unable to read the response"
-		return diag
+		apiErr.Detail = "unable to read the response"
+		return apiErr
 	}
 
 	var detail bytes.Buffer
 
 	if err = json.Indent(&detail, body, "", "\t"); err == nil {
-		diag.Detail = "unable to parse the response"
-		return diag
+		apiErr.Detail = "unable to parse the response"
+		return apiErr
 	}
 
 	errMsg, err := io.ReadAll(&detail)
 	if err != nil {
-		diag.Detail = "unable to read the parsed response"
-		return diag
+		apiErr.Detail = "unable to read the parsed response"
+		return apiErr
 	}
 
-	diag.Detail = string(errMsg)
-	return diag
+	apiErr.Detail = string(errMsg)
+	return apiErr
 }
