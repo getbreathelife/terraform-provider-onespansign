@@ -1,4 +1,4 @@
-package api_client
+package ossign
 
 import (
 	"bytes"
@@ -13,6 +13,9 @@ type SigningLogo struct {
 
 const API_PATH = "/api/account/admin/signingLogos"
 
+// UpdateSigningLogos Adds, updates or deletes an account's customized Signing Ceremony logos.
+//
+// https://community.onespan.com/products/onespan-sign/sandbox#/Account%20Signing%20Logos/api.account.admin.signingLogos.post
 func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) *ApiError {
 	var body []byte
 
@@ -56,6 +59,9 @@ func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) *ApiError {
 	return nil
 }
 
+// GetSigningLogos Retrieves an account's customized logo for use during the Signing Ceremony. In addition, the corresponding langauge for the account is also retrieved.
+//
+// https://community.onespan.com/products/onespan-sign/sandbox#/Account%20Signing%20Logos/api.account.admin.signingLogos.get
 func (c *ApiClient) GetSigningLogos() ([]SigningLogo, *ApiError) {
 	req, err := c.newApiRequest("GET", API_PATH, nil)
 

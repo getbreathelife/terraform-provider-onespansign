@@ -3,7 +3,7 @@ package provider
 import (
 	"context"
 
-	"github.com/getbreathelife/terraform-provider-onespan-sign/internal/api_client"
+	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespansign/client"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -64,7 +64,7 @@ func configure(version string, p *schema.Provider) func(context.Context, *schema
 		id := d.Get("client_id").(string)
 		secret := d.Get("client_secret").(string)
 
-		return api_client.NewClient(&api_client.ApiClientConfig{
+		return ossign.NewClient(&ossign.ApiClientConfig{
 			BaseUrl:      url,
 			ClientId:     id,
 			ClientSecret: secret,

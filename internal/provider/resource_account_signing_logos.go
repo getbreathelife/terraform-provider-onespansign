@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/getbreathelife/terraform-provider-onespan-sign/internal/api_client"
+	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespansign/client"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
@@ -101,7 +101,7 @@ func isValidImageData(v interface{}, p cty.Path) diag.Diagnostics {
 	return diags
 }
 
-func flattenAccountSigningLogos(logos []api_client.SigningLogo) []interface{} {
+func flattenAccountSigningLogos(logos []ossign.SigningLogo) []interface{} {
 	ls := make([]interface{}, len(logos))
 
 	for i, v := range logos {
@@ -132,7 +132,7 @@ func resourceAccountSigningLogosCreate(ctx context.Context, d *schema.ResourceDa
 
 func resourceAccountSigningLogosRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// use the meta value to retrieve your client from the provider configure method
-	c := meta.(*api_client.ApiClient)
+	c := meta.(*ossign.ApiClient)
 
 	var diags diag.Diagnostics
 
@@ -156,14 +156,14 @@ func resourceAccountSigningLogosRead(ctx context.Context, d *schema.ResourceData
 
 func resourceAccountSigningLogosUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// use the meta value to retrieve your client from the provider configure method
-	c := meta.(*api_client.ApiClient)
+	c := meta.(*ossign.ApiClient)
 
 	var diags diag.Diagnostics
-	var b []api_client.SigningLogo
+	var b []ossign.SigningLogo
 
 	logos := d.Get("logo").(*schema.Set).List()
 	for _, v := range logos {
-		b = append(b, v.(api_client.SigningLogo))
+		b = append(b, v.(ossign.SigningLogo))
 	}
 
 	if err := c.UpdateSigningLogos(b); err != nil {
