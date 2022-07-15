@@ -50,6 +50,10 @@ func resourceAccountSigningLogos() *schema.Resource {
 				},
 			},
 		},
+
+		Importer: &schema.ResourceImporter{
+			StateContext: schema.ImportStatePassthroughContext,
+		},
 	}
 }
 
@@ -192,7 +196,8 @@ func resourceScaffoldingDelete(ctx context.Context, d *schema.ResourceData, meta
 		diag.Diagnostic{
 			Severity: diag.Warning,
 			Summary:  "no deletion will take place",
-			Detail:   "This resource is a singleton. It only supports retrieval or replacement operations.",
+			Detail: `This resource is a singleton. It only supports retrieval or replacement operations.
+			To remove all account signing logos, declare the resource without any "logo" attribute instead.`,
 		},
 	}
 }
