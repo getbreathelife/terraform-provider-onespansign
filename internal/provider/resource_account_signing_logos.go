@@ -109,7 +109,7 @@ func flattenAccountSigningLogos(logos []ossign.SigningLogo) []interface{} {
 	ls := make([]interface{}, len(logos))
 
 	for i, v := range logos {
-		e := make(map[string]interface{})
+		e := make(map[string]interface{}, 2)
 
 		e["language"] = v.Language
 		e["image"] = v.Image
