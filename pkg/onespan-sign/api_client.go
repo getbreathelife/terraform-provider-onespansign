@@ -12,14 +12,14 @@ import (
 )
 
 type ApiClientConfig struct {
-	BaseUrl      string
+	BaseUrl      *url.URL
 	ClientId     string
 	ClientSecret string
 	UserAgent    string
 }
 
 type ApiClient struct {
-	baseUrl string
+	baseUrl *url.URL
 	ua      string
 	token   string
 	expiry  int64
@@ -49,7 +49,7 @@ type ErrorResponse struct {
 
 const API_VERSION = "11.47"
 
-func NewClient(config *ApiClientConfig) *ApiClient {
+func NewClient(config ApiClientConfig) *ApiClient {
 	client := &http.Client{}
 
 	return &ApiClient{
@@ -66,11 +66,8 @@ func (c *ApiClient) getAuthToken() (string, error) {
 		return c.token, nil
 	}
 
-	url := &url.URL{
-		Scheme: "https",
-		Host:   c.baseUrl,
-		Path:   "/apitoken/clientApp/accessToken",
-	}
+	url := c.baseUrl
+	url.Path = "/apitoken/clientApp/accessToken"
 
 	req, err := http.NewRequest("POST", url.String(), bytes.NewBuffer([]byte(fmt.Sprintf(`{"clientId":"%s","secret":"%s","type":"OWNER"}`, c.ClientId, c.clientSecret))))
 	if err != nil {
@@ -118,11 +115,8 @@ func (c *ApiClient) makeApiRequest(method string, path string, body io.Reader) (
 		}
 	}
 
-	url := &url.URL{
-		Scheme: "https",
-		Host:   c.baseUrl,
-		Path:   path,
-	}
+	url := c.baseUrl
+	url.Path = path
 
 	req, err := http.NewRequest(method, url.String(), body)
 	if err != nil {
