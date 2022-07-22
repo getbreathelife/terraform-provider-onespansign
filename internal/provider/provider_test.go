@@ -1,16 +1,18 @@
 package provider
 
 import (
+	"os"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/joho/godotenv"
 )
 
 // providerFactories are used to instantiate a provider during acceptance testing.
 // The factory function will be invoked for every Terraform CLI command executed
 // to create a provider server to which the CLI can reattach.
 var providerFactories = map[string]func() (*schema.Provider, error){
-	"scaffolding": func() (*schema.Provider, error) {
+	"onespan-sign": func() (*schema.Provider, error) {
 		return New("dev")(), nil
 	},
 }
@@ -22,7 +24,16 @@ func TestProvider(t *testing.T) {
 }
 
 func testAccPreCheck(t *testing.T) {
-	// You can add code here to run prior to any test case execution, for example assertions
-	// about the appropriate environment variables being set are common to see in a pre-check
-	// function.
+	// Load env var from a .env file if it exist
+	godotenv.Load("../../.env")
+
+	if v := os.Getenv("ENV_URL"); v == "" {
+		t.Fatal("ENV_URL must be set for acceptance tests")
+	}
+	if v := os.Getenv("CLIENT_ID"); v == "" {
+		t.Fatal("CLIENT_ID must be set for acceptance tests")
+	}
+	if v := os.Getenv("CLIENT_SECRET"); v == "" {
+		t.Fatal("CLIENT_SECRET must be set for acceptance tests")
+	}
 }

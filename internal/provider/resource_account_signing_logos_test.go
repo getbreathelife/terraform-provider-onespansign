@@ -1,32 +1,54 @@
 package provider
 
 import (
-	"regexp"
+	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 )
 
-func TestAccResourceScaffolding(t *testing.T) {
-	t.Skip("resource not yet implemented, remove this once you add your own code")
+const testImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAANCAYAAACQN/8FAAAABGdBTUEAALGPC" +
+	"/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAhGVYSWZNTQAqAAAACAAFARIAAwAAAAEA" +
+	"AQAAARoABQAAAAEAAABKARsABQAAAAEAAABSASgAAwAAAAEAAgAAh2kABAAAAAEAAABaAAAAAAAAASAAAAABAAABIAAAAAEAA6A" +
+	"BAAMAAAABAAEAAKACAAQAAAABAAAACqADAAQAAAABAAAADQAAAADcXFczAAAACXBIWXMAACxLAAAsSwGlPZapAAABWWlUWHRYTU" +
+	"w6Y29tLmFkb2JlLnhtcAAAAAAAPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgN" +
+	"i4wLjAiPgogICA8cmRmOlJERiB4bWxuczpyZGY9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkvMDIvMjItcmRmLXN5bnRheC1ucyMi" +
+	"PgogICAgICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgICAgICAgICB4bWxuczp0aWZmPSJodHRwOi8vbnMuYWR" +
+	"vYmUuY29tL3RpZmYvMS4wLyI+CiAgICAgICAgIDx0aWZmOk9yaWVudGF0aW9uPjE8L3RpZmY6T3JpZW50YXRpb24+CiAgICAgID" +
+	"wvcmRmOkRlc2NyaXB0aW9uPgogICA8L3JkZjpSREY+CjwveDp4bXBtZXRhPgoZXuEHAAAByElEQVQoFS1Rz2sTQRR+b2Z2N7Ek2" +
+	"mpyyEHi1RQ8VA+lBXuyzcGbK3gTLxZJpf+A0IOIV7HtoVcRweCpWBoUBCWe7HEREVpFLNg1lCbZbfbHzPNNcGB4v775+N43uNjq" +
+	"joR0PakKYIwGncWvyhfO3m2vNVIgQkAk4KNQOJ7J019G5+8BqFYs1+70//4+4tnqzP09tQeQWaBQThFI4E5nffYe3+Zp/7DP/aY" +
+	"d1gAc33/t2lxlySBHgHlbACAZ070OSka22t66Gtvo+yRxaaX7UDoTz/Ik3gWEb6wp4ofGEEyxlBPH4Iu3m7Nfcan1aUG6pQ9Cen" +
+	"YRYM2WBIxOwS2eg9HwiKXBnCCQz/M01kncu0Eaq9pElygZ1MHE1dHwzy3HKwMaeqqcQnk6Pz152dmYfzemAgj/RxveLLY+f2Tt0" +
+	"4rYO97a2K6/FrgQBDpsVLAShNRu39ZsIpsJmUIUDKHEAkeH+2rQqJgKVMX+ZMkarS2IzZAqS4dc4xUL3N66ObbD5vY0V757hsLL" +
+	"QBAr/qDNM5P1B6zlC88CbhaYgdkw0Sa8Vjpfr0W9g0fqYuqs/jz+IVjCsnInZojGchmHoJPIDHsHTzobc4//ASnLxOSzgBDYAAA" +
+	"AAElFTkSuQmCC"
 
-	resource.UnitTest(t, resource.TestCase{
+func TestAccResourceSigningLogos(t *testing.T) {
+	const r = `
+	resource "account_signing_logos" "foo" {
+		logo {
+			language = "en"
+			image = "%s"
+		}
+	}
+	`
+
+	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: testAccResourceScaffolding,
+				Config: fmt.Sprintf(r, testImg),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestMatchResourceAttr(
-						"scaffolding_resource.foo", "sample_attribute", regexp.MustCompile("^ba")),
+					resource.TestCheckResourceAttr("account_signing_logos.foo", "logo.%", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"account_signing_logos.foo", "logo.*", map[string]string{
+							"language": "en",
+							"image":    testImg,
+						}),
 				),
 			},
 		},
 	})
 }
-
-const testAccResourceScaffolding = `
-resource "scaffolding_resource" "foo" {
-  sample_attribute = "bar"
-}
-`
