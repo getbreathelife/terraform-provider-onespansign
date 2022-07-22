@@ -25,6 +25,7 @@ func resourceAccountSigningThemes() *schema.Resource {
 			"theme": {
 				Description: "Customized signing theme for the account.",
 				Type:        schema.TypeSet,
+				Required:    true,
 
 				// The current API behaviour is that we are able to create multiple themes for the account.
 				// However, only the first theme will be used for the signing ceremony.

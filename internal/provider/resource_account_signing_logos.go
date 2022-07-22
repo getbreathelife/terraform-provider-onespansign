@@ -32,6 +32,7 @@ func resourceAccountSigningLogos() *schema.Resource {
 				// This description is used by the documentation generator and the language server.
 				Description: "Customized logo used during the Signing Ceremony.",
 				Type:        schema.TypeSet,
+				Optional:    true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"language": {

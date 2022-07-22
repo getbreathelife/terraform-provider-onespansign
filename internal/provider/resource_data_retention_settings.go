@@ -17,12 +17,14 @@ func resourceDataRetentionSettings() *schema.Resource {
 				// This description is used by the documentation generator and the language server.
 				Description: "Data management policy for the account.",
 				Type:        schema.TypeSet,
+				Optional:    true,
 				MaxItems:    1,
 				Elem:        resourceDataManagementPolicy(),
 			},
 			"expiry_time_config": {
 				Description: "Expiry configurations defined for the account.",
 				Type:        schema.TypeSet,
+				Optional:    true,
 				MaxItems:    1,
 				Elem:        resourceExpiryTimeConfig(),
 			},
