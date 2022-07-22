@@ -70,3 +70,7 @@ func (c *ApiClient) GetSigningLogos() ([]SigningLogo, *ApiError) {
 
 	return jsonResp, nil
 }
+
+func (l SigningLogo) Equal(e SigningLogo) bool {
+	return l.Language == e.Language && l.Image == e.Language
+}

@@ -1,10 +1,13 @@
 package provider
 
 import (
+	"errors"
 	"fmt"
 	"testing"
 
+	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
 
 const testImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAANCAYAAACQN/8FAAAABGdBTUEAALGPC" +
@@ -47,8 +50,50 @@ func TestAccResourceSigningLogos(t *testing.T) {
 							"language": "en",
 							"image":    testImg,
 						}),
+					testAccCheckSigningLogosResourceMatches([]ossign.SigningLogo{
+						{
+							Language: "en",
+							Image:    testImg,
+						},
+					}),
+				),
+			},
+			{
+				Config: `resource "account_signing_logos" "foo" {}`,
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("account_signing_logos.foo", "logo.%", "0"),
+					testAccCheckSigningLogosResourceMatches([]ossign.SigningLogo{}),
 				),
 			},
 		},
 	})
+}
+
+func testAccCheckSigningLogosResourceMatches(m []ossign.SigningLogo) resource.TestCheckFunc {
+	return func(*terraform.State) error {
+		c := getTestApiClient()
+
+		l, err := c.GetSigningLogos()
+		if err != nil {
+			panic(err.GetError())
+		}
+
+		var match bool
+
+		for _, v1 := range l {
+			match = false
+
+			for _, v2 := range m {
+				if v1.Equal(v2) {
+					match = true
+				}
+			}
+
+			if !match {
+				return errors.New("Signing logos resource does not match expectation")
+			}
+		}
+
+		return nil
+	}
 }

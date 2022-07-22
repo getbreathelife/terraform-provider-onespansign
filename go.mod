@@ -7,11 +7,11 @@ require (
 	github.com/hashicorp/terraform-plugin-docs v0.13.0
 	github.com/hashicorp/terraform-plugin-log v0.4.1
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.18.0
+	github.com/joho/godotenv v1.4.0
 	github.com/vincent-petithory/dataurl v1.0.0
 )
 
 require (
-	github.com/joho/godotenv v1.4.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

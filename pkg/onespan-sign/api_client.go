@@ -188,3 +188,7 @@ func getApiError(res *http.Response) *ApiError {
 	apiErr.Detail = string(errMsg)
 	return apiErr
 }
+
+func (e *ApiError) GetError() error {
+	return fmt.Errorf("an API error occurred: '%s'\n%s", e.Summary, e.Detail)
+}

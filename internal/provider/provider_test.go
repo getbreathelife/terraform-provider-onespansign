@@ -1,9 +1,11 @@
 package provider
 
 import (
+	"net/url"
 	"os"
 	"testing"
 
+	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/joho/godotenv"
 )
@@ -21,6 +23,19 @@ func TestProvider(t *testing.T) {
 	if err := New("dev")().InternalValidate(); err != nil {
 		t.Fatalf("err: %s", err)
 	}
+}
+
+func getTestApiClient() *ossign.ApiClient {
+	url, err := url.Parse(os.Getenv("ENV_URL"))
+	if err != nil {
+		panic(err)
+	}
+
+	return ossign.NewClient(ossign.ApiClientConfig{
+		BaseUrl:      url,
+		ClientId:     os.Getenv("CLIENT_ID"),
+		ClientSecret: os.Getenv("CLIENT_SECRET"),
+	})
 }
 
 func testAccPreCheck(t *testing.T) {
