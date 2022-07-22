@@ -29,6 +29,14 @@ func init() {
 }
 
 func New(version string) func() *schema.Provider {
+	envDefaultFunc := schema.EnvDefaultFunc
+
+	if version != "dev" {
+		envDefaultFunc = func(k string, dv interface{}) schema.SchemaDefaultFunc {
+			return nil
+		}
+	}
+
 	return func() *schema.Provider {
 		p := &schema.Provider{
 			Schema: map[string]*schema.Schema{
@@ -37,17 +45,20 @@ func New(version string) func() *schema.Provider {
 					Required:         true,
 					Description:      "Environment URL for the OneSpan sign account. For the list of available URLs, please visit [Environment URLs & IP Addresses (OneSpan Sign)](https://community.onespan.com/documentation/onespan-sign/guides/quick-start-guides/developer/environment-urls-ip-addresses).",
 					ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(regexp.MustCompile("^https://(www.)?[a-zA-Z0-9.-]{2,256}.[a-z]{2,4}"), "Please provide a valid environment URL in the format of <scheme>://<host>")),
+					DefaultFunc:      envDefaultFunc("ENV_URL", ""),
 				},
 				"client_id": {
 					Type:        schema.TypeString,
 					Required:    true,
 					Description: "Client ID of the [OneSpan Sign Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) created for this provider.",
+					DefaultFunc: envDefaultFunc("CLIENT_ID", ""),
 				},
 				"client_secret": {
 					Type:        schema.TypeString,
 					Required:    true,
 					Sensitive:   true,
 					Description: "Client secret of the [OneSpan Sign Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) created for this provider.",
+					DefaultFunc: envDefaultFunc("CLIENT_SECRET", ""),
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{},
