@@ -29,7 +29,7 @@ func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) *ApiError {
 			}
 		}
 	} else {
-		body = []byte("{}")
+		body = []byte("[]")
 	}
 
 	res, err := c.makeApiRequest("POST", "/api/account/admin/signingLogos", bytes.NewBuffer(body))
@@ -71,6 +71,6 @@ func (c *ApiClient) GetSigningLogos() ([]SigningLogo, *ApiError) {
 	return jsonResp, nil
 }
 
-func (l SigningLogo) Equal(e SigningLogo) bool {
-	return l.Language == e.Language && l.Image == e.Language
+func (l SigningLogo) Equal(r SigningLogo) bool {
+	return l.Language == r.Language && l.Image == r.Image
 }

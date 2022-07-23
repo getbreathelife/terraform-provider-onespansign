@@ -28,25 +28,61 @@ const testImg = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAANCAYAAACQN
 	"AAElFTkSuQmCC"
 
 func TestAccResourceSigningLogos(t *testing.T) {
-	const r = `
-	resource "account_signing_logos" "foo" {
-		logo {
-			language = "en"
-			image = "%s"
-		}
-	}
-	`
-
 	resource.Test(t, resource.TestCase{
 		PreCheck:          func() { testAccPreCheck(t) },
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(r, testImg),
+				Config: fmt.Sprintf(`
+				resource "onespansign_account_signing_logos" "foo" {
+					logo {
+						language = "en"
+						image = "%s"
+					}
+
+					logo {
+						language = "fr"
+						image = "%s"
+					}
+				}
+				`, testImg, testImg),
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("account_signing_logos.foo", "logo.%", "1"),
+					resource.TestCheckResourceAttr("onespansign_account_signing_logos.foo", "logo.#", "2"),
 					resource.TestCheckTypeSetElemNestedAttrs(
-						"account_signing_logos.foo", "logo.*", map[string]string{
+						"onespansign_account_signing_logos.foo", "logo.*", map[string]string{
+							"language": "en",
+							"image":    testImg,
+						}),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"onespansign_account_signing_logos.foo", "logo.*", map[string]string{
+							"language": "fr",
+							"image":    testImg,
+						}),
+					testAccCheckSigningLogosResourceMatches([]ossign.SigningLogo{
+						{
+							Language: "en",
+							Image:    testImg,
+						},
+						{
+							Language: "fr",
+							Image:    testImg,
+						},
+					}),
+				),
+			},
+			{
+				Config: fmt.Sprintf(`
+				resource "onespansign_account_signing_logos" "foo" {
+					logo {
+						language = "en"
+						image = "%s"
+					}
+				}
+				`, testImg),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("onespansign_account_signing_logos.foo", "logo.#", "1"),
+					resource.TestCheckTypeSetElemNestedAttrs(
+						"onespansign_account_signing_logos.foo", "logo.*", map[string]string{
 							"language": "en",
 							"image":    testImg,
 						}),
@@ -59,9 +95,9 @@ func TestAccResourceSigningLogos(t *testing.T) {
 				),
 			},
 			{
-				Config: `resource "account_signing_logos" "foo" {}`,
+				Config: `resource "onespansign_account_signing_logos" "foo" {}`,
 				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("account_signing_logos.foo", "logo.%", "0"),
+					resource.TestCheckResourceAttr("onespansign_account_signing_logos.foo", "logo.#", "0"),
 					testAccCheckSigningLogosResourceMatches([]ossign.SigningLogo{}),
 				),
 			},
@@ -86,6 +122,7 @@ func testAccCheckSigningLogosResourceMatches(m []ossign.SigningLogo) resource.Te
 			for _, v2 := range m {
 				if v1.Equal(v2) {
 					match = true
+					break
 				}
 			}
 

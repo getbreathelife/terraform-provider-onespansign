@@ -122,6 +122,7 @@ func flattenAccountSigningLogos(logos []ossign.SigningLogo) []interface{} {
 }
 
 func resourceAccountSigningLogosCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*ossign.ApiClient)
 	var diags diag.Diagnostics
 
 	diags = append(diags, diag.Diagnostic{
@@ -131,6 +132,8 @@ func resourceAccountSigningLogosCreate(ctx context.Context, d *schema.ResourceDa
 	})
 
 	diags = append(diags, resourceAccountSigningLogosUpdate(ctx, d, meta)...)
+
+	d.SetId(c.ClientId)
 
 	return diags
 }
@@ -149,10 +152,12 @@ func resourceAccountSigningLogosRead(ctx context.Context, d *schema.ResourceData
 			Summary:  err.Summary,
 			Detail:   err.Detail,
 		})
+		d.SetId("")
 		return diags
 	}
 
 	if err := d.Set("logo", flattenAccountSigningLogos(logos)); err != nil {
+		d.SetId("")
 		return diag.FromErr(err)
 	}
 

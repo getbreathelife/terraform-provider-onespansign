@@ -163,28 +163,31 @@ func jsonDecode(r io.Reader, v interface{}) error {
 func getApiError(res *http.Response) *ApiError {
 	apiErr := &ApiError{
 		HttpResponse: res,
-		Summary:      "invalid response from the API",
 	}
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		apiErr.Detail = "unable to read the response"
+		apiErr.Summary = "unable to read the error response"
+		apiErr.Detail = err.Error()
 		return apiErr
 	}
 
 	var detail bytes.Buffer
 
-	if err = json.Indent(&detail, body, "", "\t"); err == nil {
-		apiErr.Detail = "unable to parse the response"
+	if err = json.Indent(&detail, body, "", "\t"); err != nil {
+		apiErr.Summary = "unable to parse the error response"
+		apiErr.Detail = err.Error()
 		return apiErr
 	}
 
 	errMsg, err := io.ReadAll(&detail)
 	if err != nil {
-		apiErr.Detail = "unable to read the parsed response"
+		apiErr.Summary = "unable to read the parsed error response"
+		apiErr.Detail = err.Error()
 		return apiErr
 	}
 
+	apiErr.Summary = "invalid response from the API"
 	apiErr.Detail = string(errMsg)
 	return apiErr
 }

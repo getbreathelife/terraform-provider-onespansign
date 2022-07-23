@@ -44,7 +44,7 @@ func New(version string) func() *schema.Provider {
 					Type:             schema.TypeString,
 					Required:         true,
 					Description:      "Environment URL for the OneSpan sign account. For the list of available URLs, please visit [Environment URLs & IP Addresses (OneSpan Sign)](https://community.onespan.com/documentation/onespan-sign/guides/quick-start-guides/developer/environment-urls-ip-addresses).",
-					ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(regexp.MustCompile("^https://(www.)?[a-zA-Z0-9.-]{2,256}.[a-z]{2,4}"), "Please provide a valid environment URL in the format of <scheme>://<host>")),
+					ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(regexp.MustCompile("^https://(www.)?[a-zA-Z0-9.-]{2,256}.[a-z]{2,4}$"), "Please provide a valid environment URL in the format of <scheme>://<host>")),
 					DefaultFunc:      envDefaultFunc("ENV_URL", ""),
 				},
 				"client_id": {
@@ -63,9 +63,9 @@ func New(version string) func() *schema.Provider {
 			},
 			DataSourcesMap: map[string]*schema.Resource{},
 			ResourcesMap: map[string]*schema.Resource{
-				"account_signing_logos":   resourceAccountSigningLogos(),
-				"account_signing_themes":  resourceAccountSigningThemes(),
-				"data_retention_settings": resourceDataRetentionSettings(),
+				"onespansign_account_signing_logos":   resourceAccountSigningLogos(),
+				"onespansign_account_signing_themes":  resourceAccountSigningThemes(),
+				"onespansign_data_retention_settings": resourceDataRetentionSettings(),
 			},
 		}
 

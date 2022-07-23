@@ -34,7 +34,6 @@ func main() {
 
 	opts := &plugin.ServeOpts{
 		Debug:        debugMode,
-		ProviderAddr: "registry.terraform.io/breathelife/onespan-sign",
 		ProviderFunc: provider.New(version),
 	}
 
