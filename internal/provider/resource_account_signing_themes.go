@@ -3,11 +3,13 @@ package provider
 import (
 	"context"
 	"regexp"
+	"time"
 
 	"github.com/getbreathelife/terraform-provider-onespansign/pkg/ossign"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
@@ -134,6 +136,48 @@ func buildAccountSigningThemes(d *schema.ResourceData) map[string]ossign.Signing
 	return r
 }
 
+// getStateChangeConf gets the configuration struct for the `WaitForState` functions.
+// c is the OneSpan Sign API client instance, whereas e is the expected map of signing themes state.
+func getStateChangeConf(c *ossign.ApiClient, e map[string]ossign.SigningTheme) resource.StateChangeConf {
+	return resource.StateChangeConf{
+		Delay:                     500 * time.Millisecond,
+		Pending:                   []string{"waiting", "error"},
+		Target:                    []string{"complete"},
+		Timeout:                   5 * time.Second,
+		MinTimeout:                500 * time.Millisecond,
+		NotFoundChecks:            2,
+		ContinuousTargetOccurence: 2,
+		Refresh: func() (result interface{}, state string, err error) {
+			t, apiErr := c.GetAccountSigningThemes()
+
+			if apiErr != nil {
+				return nil, "error", apiErr.GetError()
+			}
+
+			if len(e) != len(t) {
+				return t, "waiting", nil
+			}
+
+			eq := true
+
+			for k1, v1 := range e {
+				v2 := t[k1]
+
+				if !v1.Equal(v2) {
+					eq = false
+					break
+				}
+			}
+
+			if !eq {
+				return t, "waiting", nil
+			}
+
+			return t, "complete", nil
+		},
+	}
+}
+
 func resourceAccountSigningThemesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*ossign.ApiClient)
 
@@ -149,6 +193,11 @@ func resourceAccountSigningThemesCreate(ctx context.Context, d *schema.ResourceD
 		})
 		return diags
 	}
+
+	tflog.Trace(ctx, "waiting for the signing theme resource to be created...")
+
+	scc := getStateChangeConf(c, b)
+	scc.WaitForStateContext(ctx)
 
 	tflog.Trace(ctx, "created the account's signing theme resource")
 
@@ -205,6 +254,11 @@ func resourceAccountSigningThemesUpdate(ctx context.Context, d *schema.ResourceD
 		return diags
 	}
 
+	tflog.Trace(ctx, "waiting for the signing theme resource to be updated...")
+
+	scc := getStateChangeConf(c, b)
+	scc.WaitForStateContext(ctx)
+
 	tflog.Trace(ctx, "updated the account's signing theme resource")
 
 	return resourceAccountSigningThemesRead(ctx, d, meta)
@@ -223,6 +277,11 @@ func resourceAccountSigningThemesDelete(ctx context.Context, d *schema.ResourceD
 		})
 		return diags
 	}
+
+	tflog.Trace(ctx, "waiting for the signing theme resource to be deleted...")
+
+	scc := getStateChangeConf(c, map[string]ossign.SigningTheme{})
+	scc.WaitForStateContext(ctx)
 
 	tflog.Trace(ctx, "deleted the account's signing theme resource")
 

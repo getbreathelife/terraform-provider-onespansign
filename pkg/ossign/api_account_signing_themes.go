@@ -123,3 +123,13 @@ func (c *ApiClient) DeleteAccountSigningThemes() *ApiError {
 
 	return nil
 }
+
+func (l SigningTheme) Equal(r SigningTheme) bool {
+	return l.Primary == r.Primary &&
+		l.Success == r.Success &&
+		l.Warning == r.Warning &&
+		l.Error == r.Error &&
+		l.Info == r.Info &&
+		l.SignatureButton == r.SignatureButton &&
+		l.OptionalSignatureButton == r.OptionalSignatureButton
+}
