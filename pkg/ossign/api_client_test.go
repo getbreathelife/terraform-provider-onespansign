@@ -125,8 +125,8 @@ func TestGetAuthToken(t *testing.T) {
 		UserAgent:    uuid.NewString(),
 	})
 
-	c.GetSigningLogos()
-	c.GetSigningLogos()
+	c.GetAccountSigningLogos()
+	c.GetAccountSigningLogos()
 
 	assert.Equal(t, 3, len(h.Stack))
 
@@ -173,7 +173,7 @@ func TestGetAuthTokenRefresh(t *testing.T) {
 		UserAgent:    uuid.NewString(),
 	})
 
-	c.GetSigningLogos()
+	c.GetAccountSigningLogos()
 
 	token2 := uuid.NewString()
 	config.AccessToken = token2
@@ -181,7 +181,7 @@ func TestGetAuthTokenRefresh(t *testing.T) {
 	// Wait until the token is expired
 	time.Sleep(time.Second)
 
-	c.GetSigningLogos()
+	c.GetAccountSigningLogos()
 
 	assert.Equal(t, 4, len(h.Stack))
 

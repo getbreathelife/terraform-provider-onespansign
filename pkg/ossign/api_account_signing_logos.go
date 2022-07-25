@@ -11,10 +11,10 @@ type SigningLogo struct {
 	Image    string `json:"image"`
 }
 
-// UpdateSigningLogos Adds, updates or deletes an account's customized Signing Ceremony logos.
+// UpdateAccountSigningLogos Adds, updates or deletes an account's customized Signing Ceremony logos.
 //
 // https://community.onespan.com/products/onespan-sign/sandbox#/Account%20Signing%20Logos/api.account.admin.signingLogos.post
-func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) *ApiError {
+func (c *ApiClient) UpdateAccountSigningLogos(d []SigningLogo) *ApiError {
 	var body []byte
 
 	if len(d) > 0 {
@@ -45,10 +45,10 @@ func (c *ApiClient) UpdateSigningLogos(d []SigningLogo) *ApiError {
 	return nil
 }
 
-// GetSigningLogos Retrieves an account's customized logo for use during the Signing Ceremony. In addition, the corresponding langauge for the account is also retrieved.
+// GetAccountSigningLogos Retrieves an account's customized logo for use during the Signing Ceremony. In addition, the corresponding langauge for the account is also retrieved.
 //
 // https://community.onespan.com/products/onespan-sign/sandbox#/Account%20Signing%20Logos/api.account.admin.signingLogos.get
-func (c *ApiClient) GetSigningLogos() ([]SigningLogo, *ApiError) {
+func (c *ApiClient) GetAccountSigningLogos() ([]SigningLogo, *ApiError) {
 	res, err := c.makeApiRequest("GET", "/api/account/admin/signingLogos", nil)
 
 	if err != nil {

@@ -109,7 +109,7 @@ func testAccCheckSigningLogosResourceMatches(m []ossign.SigningLogo) resource.Te
 	return func(*terraform.State) error {
 		c := getTestApiClient()
 
-		l, err := c.GetSigningLogos()
+		l, err := c.GetAccountSigningLogos()
 		if err != nil {
 			panic(err.GetError())
 		}

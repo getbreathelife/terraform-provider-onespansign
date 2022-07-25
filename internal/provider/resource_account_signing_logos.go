@@ -144,7 +144,7 @@ func resourceAccountSigningLogosRead(ctx context.Context, d *schema.ResourceData
 
 	var diags diag.Diagnostics
 
-	logos, err := c.GetSigningLogos()
+	logos, err := c.GetAccountSigningLogos()
 
 	if err != nil {
 		diags = append(diags, diag.Diagnostic{
@@ -181,7 +181,7 @@ func resourceAccountSigningLogosUpdate(ctx context.Context, d *schema.ResourceDa
 		})
 	}
 
-	if err := c.UpdateSigningLogos(b); err != nil {
+	if err := c.UpdateAccountSigningLogos(b); err != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  err.Summary,
