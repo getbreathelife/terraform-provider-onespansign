@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
-	"github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign/testhelpers"
+	"github.com/getbreathelife/terraform-provider-onespan-sign/pkg/ossign"
+	"github.com/getbreathelife/terraform-provider-onespan-sign/pkg/ossign/testhelpers"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )

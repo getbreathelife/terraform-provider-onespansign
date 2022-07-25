@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/getbreathelife/terraform-provider-onespan-sign/internal/helpers"
-	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
+	"github.com/getbreathelife/terraform-provider-onespan-sign/pkg/ossign"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"

@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"regexp"
 
-	ossign "github.com/getbreathelife/terraform-provider-onespan-sign/pkg/onespan-sign"
+	"github.com/getbreathelife/terraform-provider-onespan-sign/pkg/ossign"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
