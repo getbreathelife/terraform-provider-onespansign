@@ -96,6 +96,11 @@ func TestAccResourceSigningLogos(t *testing.T) {
 				),
 			},
 			{
+				ResourceName:      "onespansign_account_signing_logos.foo",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
 				Config: `resource "onespansign_account_signing_logos" "foo" {}`,
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_account_signing_logos.foo", "logo.#", "0"),
@@ -112,7 +117,7 @@ func testAccCheckSigningLogosResourceMatches(m []ossign.SigningLogo) resource.Te
 
 		l, err := c.GetAccountSigningLogos()
 		if err != nil {
-			panic(err.GetError())
+			return err.GetError()
 		}
 
 		var match bool
