@@ -152,6 +152,8 @@ func resourceAccountSigningThemesCreate(ctx context.Context, d *schema.ResourceD
 
 	tflog.Trace(ctx, "created the account's signing theme resource")
 
+	d.SetId(c.ClientId)
+
 	return resourceAccountSigningThemesRead(ctx, d, meta)
 }
 
@@ -183,8 +185,6 @@ func resourceAccountSigningThemesRead(ctx context.Context, d *schema.ResourceDat
 		}
 		break
 	}
-
-	d.SetId(c.ClientId)
 
 	return diags
 }
@@ -225,6 +225,8 @@ func resourceAccountSigningThemesDelete(ctx context.Context, d *schema.ResourceD
 	}
 
 	tflog.Trace(ctx, "deleted the account's signing theme resource")
+
+	d.SetId("")
 
 	return resourceAccountSigningThemesRead(ctx, d, meta)
 }

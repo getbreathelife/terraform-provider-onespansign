@@ -152,12 +152,10 @@ func resourceAccountSigningLogosRead(ctx context.Context, d *schema.ResourceData
 			Summary:  err.Summary,
 			Detail:   err.Detail,
 		})
-		d.SetId("")
 		return diags
 	}
 
 	if err := d.Set("logo", flattenAccountSigningLogos(logos)); err != nil {
-		d.SetId("")
 		return diag.FromErr(err)
 	}
 
