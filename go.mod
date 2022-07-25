@@ -1,4 +1,4 @@
-module github.com/getbreathelife/terraform-provider-onespan-sign
+module github.com/getbreathelife/terraform-provider-onespansign
 
 go 1.17
 

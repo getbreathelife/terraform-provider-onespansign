@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/getbreathelife/terraform-provider-onespan-sign/internal/provider"
+	"github.com/getbreathelife/terraform-provider-onespansign/internal/provider"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 )
 

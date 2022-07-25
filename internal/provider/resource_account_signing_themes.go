@@ -4,7 +4,7 @@ import (
 	"context"
 	"regexp"
 
-	"github.com/getbreathelife/terraform-provider-onespan-sign/pkg/ossign"
+	"github.com/getbreathelife/terraform-provider-onespansign/pkg/ossign"
 	"github.com/hashicorp/go-cty/cty"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
