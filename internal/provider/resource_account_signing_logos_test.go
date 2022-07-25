@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/getbreathelife/terraform-provider-onespansign/pkg/ossign"
+	"github.com/google/go-cmp/cmp"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -120,7 +121,7 @@ func testAccCheckSigningLogosResourceMatches(m []ossign.SigningLogo) resource.Te
 			match = false
 
 			for _, v2 := range m {
-				if v1.Equal(v2) {
+				if cmp.Equal(v1, v2) {
 					match = true
 					break
 				}
