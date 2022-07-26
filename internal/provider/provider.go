@@ -62,9 +62,10 @@ func New(version string) func() *schema.Provider {
 			},
 			DataSourcesMap: map[string]*schema.Resource{},
 			ResourcesMap: map[string]*schema.Resource{
-				"onespansign_account_signing_logos":   resourceAccountSigningLogos(),
-				"onespansign_account_signing_themes":  resourceAccountSigningThemes(),
-				"onespansign_data_retention_settings": resourceDataRetentionSettings(),
+				"onespansign_account_signing_logos":  resourceAccountSigningLogos(),
+				"onespansign_account_signing_themes": resourceAccountSigningThemes(),
+				"onespansign_data_management_policy": resourceDataManagementPolicy(),
+				"onespansign_expiry_time_config":     resourceExpiryTimeConfig(),
 			},
 		}
 
