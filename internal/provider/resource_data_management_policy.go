@@ -96,6 +96,8 @@ func flattenTransactionRetention(tr ossign.TransactionRetention) interface{} {
 }
 
 func resourceDataManagementPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+	c := meta.(*ossign.ApiClient)
+
 	var diags diag.Diagnostics
 
 	diags = append(diags, diag.Diagnostic{
@@ -105,6 +107,8 @@ func resourceDataManagementPolicyCreate(ctx context.Context, d *schema.ResourceD
 	})
 
 	diags = append(diags, resourceDataManagementPolicyUpdate(ctx, d, meta)...)
+
+	d.SetId(c.ClientId)
 
 	return diags
 }
@@ -148,13 +152,13 @@ func resourceDataManagementPolicyUpdate(ctx context.Context, d *schema.ResourceD
 		i := trs[0].(map[string]interface{})
 
 		tr = &ossign.TransactionRetention{
-			Draft:     helpers.GetJsonNumber(i["draft"].(int64), 10),
-			Sent:      helpers.GetJsonNumber(i["sent"].(int64), 10),
-			Completed: helpers.GetJsonNumber(i["completed"].(int64), 10),
-			Archived:  helpers.GetJsonNumber(i["archived"].(int64), 10),
-			Declined:  helpers.GetJsonNumber(i["declined"].(int64), 10),
-			OptedOut:  helpers.GetJsonNumber(i["opted_out"].(int64), 10),
-			Expired:   helpers.GetJsonNumber(i["expired"].(int64), 10),
+			Draft:     helpers.GetJsonNumber(int64(i["draft"].(int)), 10),
+			Sent:      helpers.GetJsonNumber(int64(i["sent"].(int)), 10),
+			Completed: helpers.GetJsonNumber(int64(i["completed"].(int)), 10),
+			Archived:  helpers.GetJsonNumber(int64(i["archived"].(int)), 10),
+			Declined:  helpers.GetJsonNumber(int64(i["declined"].(int)), 10),
+			OptedOut:  helpers.GetJsonNumber(int64(i["opted_out"].(int)), 10),
+			Expired:   helpers.GetJsonNumber(int64(i["expired"].(int)), 10),
 		}
 	}
 
