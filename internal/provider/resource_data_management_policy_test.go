@@ -4,11 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strconv"
 	"testing"
 
+	"github.com/getbreathelife/terraform-provider-onespansign/internal/helpers"
 	"github.com/getbreathelife/terraform-provider-onespansign/pkg/ossign"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/acctest"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 )
@@ -131,18 +130,14 @@ func testAccCheckDataManagementPolicyResourceMatches(m ossign.DataManagementPoli
 	}
 }
 
-func randJsonNumber(min int, max int) json.Number {
-	return json.Number(strconv.Itoa(acctest.RandIntRange(min, max)))
-}
-
 func generateTransactionRetention() ossign.TransactionRetention {
 	return ossign.TransactionRetention{
-		Draft:     randJsonNumber(30, 120),
-		Sent:      randJsonNumber(30, 120),
-		Completed: randJsonNumber(30, 120),
-		Archived:  randJsonNumber(30, 120),
-		Declined:  randJsonNumber(30, 120),
-		OptedOut:  randJsonNumber(30, 120),
-		Expired:   randJsonNumber(30, 120),
+		Draft:     helpers.RandJsonNumber(30, 120),
+		Sent:      helpers.RandJsonNumber(30, 120),
+		Completed: helpers.RandJsonNumber(30, 120),
+		Archived:  helpers.RandJsonNumber(30, 120),
+		Declined:  helpers.RandJsonNumber(30, 120),
+		OptedOut:  helpers.RandJsonNumber(30, 120),
+		Expired:   helpers.RandJsonNumber(30, 120),
 	}
 }
