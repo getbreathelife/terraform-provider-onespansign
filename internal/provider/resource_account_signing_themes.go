@@ -145,7 +145,7 @@ func getStateChangeConf(c *ossign.ApiClient, e map[string]ossign.SigningTheme) r
 		Target:                    []string{"complete"},
 		Timeout:                   3 * time.Minute,
 		MinTimeout:                300 * time.Millisecond,
-		ContinuousTargetOccurence: 2,
+		ContinuousTargetOccurence: 4,
 		Refresh: func() (result interface{}, state string, err error) {
 			t, apiErr := c.GetAccountSigningThemes()
 
