@@ -29,11 +29,23 @@ type SigningTheme struct {
 	OptionalSignatureButton string `json:"optionalSignatureButton"`
 }
 
+func buildJsonRequestPayload(t map[string]SigningTheme) ([]byte, error) {
+	m := make(map[string]map[string]SigningTheme, len(t))
+
+	for k, v := range t {
+		m[k] = map[string]SigningTheme{
+			"color": v,
+		}
+	}
+
+	return json.Marshal(m)
+}
+
 // CreateAccountSigningThemes creates customized signing themes on the account.
 //
 // https://community.onespan.com/products/onespan-sign/sandbox#/Account%20Signing%20Themes/api.account.signingThemes.post
 func (c *ApiClient) CreateAccountSigningThemes(t map[string]SigningTheme) *ApiError {
-	body, err := json.Marshal(t)
+	body, err := buildJsonRequestPayload(t)
 
 	if err != nil {
 		return &ApiError{
@@ -69,7 +81,7 @@ func (c *ApiClient) GetAccountSigningThemes() (map[string]SigningTheme, *ApiErro
 		return nil, getApiError(res)
 	}
 
-	var jsonResp map[string]SigningTheme
+	var jsonResp map[string]map[string]SigningTheme
 
 	if err := jsonDecode(res.Body, &jsonResp); err != nil {
 		return nil, &ApiError{
@@ -78,14 +90,20 @@ func (c *ApiClient) GetAccountSigningThemes() (map[string]SigningTheme, *ApiErro
 		}
 	}
 
-	return jsonResp, nil
+	r := make(map[string]SigningTheme, len(jsonResp))
+
+	for k, v := range jsonResp {
+		r[k] = v["color"]
+	}
+
+	return r, nil
 }
 
 // UpdateAccountSigningThemes updates the customized signing themes on the account.
 //
 // https://community.onespan.com/products/onespan-sign/sandbox#/Account%20Signing%20Themes/api.account.signingThemes.put
 func (c *ApiClient) UpdateAccountSigningThemes(t map[string]SigningTheme) *ApiError {
-	body, err := json.Marshal(t)
+	body, err := buildJsonRequestPayload(t)
 
 	if err != nil {
 		return &ApiError{

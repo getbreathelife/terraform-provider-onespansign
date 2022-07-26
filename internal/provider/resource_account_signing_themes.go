@@ -140,12 +140,11 @@ func buildAccountSigningThemes(d *schema.ResourceData) map[string]ossign.Signing
 // c is the OneSpan Sign API client instance, whereas e is the expected map of signing themes state.
 func getStateChangeConf(c *ossign.ApiClient, e map[string]ossign.SigningTheme) resource.StateChangeConf {
 	return resource.StateChangeConf{
-		Delay:                     500 * time.Millisecond,
-		Pending:                   []string{"waiting", "error"},
+		Delay:                     30 * time.Second,
+		Pending:                   []string{"waiting"},
 		Target:                    []string{"complete"},
-		Timeout:                   5 * time.Second,
-		MinTimeout:                500 * time.Millisecond,
-		NotFoundChecks:            2,
+		Timeout:                   3 * time.Minute,
+		MinTimeout:                300 * time.Millisecond,
 		ContinuousTargetOccurence: 2,
 		Refresh: func() (result interface{}, state string, err error) {
 			t, apiErr := c.GetAccountSigningThemes()
@@ -178,6 +177,20 @@ func getStateChangeConf(c *ossign.ApiClient, e map[string]ossign.SigningTheme) r
 	}
 }
 
+func setResourceData(d *schema.ResourceData, ts map[string]ossign.SigningTheme) diag.Diagnostics {
+	var diags diag.Diagnostics
+
+	for k, v := range ts {
+		// Only pick the first element that'll be used as the signing theme
+		if err := d.Set("theme", []interface{}{flattenAccountSigningTheme(k, v)}); err != nil {
+			return diag.FromErr(err)
+		}
+		break
+	}
+
+	return diags
+}
+
 func resourceAccountSigningThemesCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	c := meta.(*ossign.ApiClient)
 
@@ -197,7 +210,11 @@ func resourceAccountSigningThemesCreate(ctx context.Context, d *schema.ResourceD
 	tflog.Trace(ctx, "waiting for the signing theme resource to be created...")
 
 	scc := getStateChangeConf(c, b)
-	scc.WaitForStateContext(ctx)
+	_, err := scc.WaitForStateContext(ctx)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	tflog.Trace(ctx, "created the account's signing theme resource")
 
@@ -211,29 +228,73 @@ func resourceAccountSigningThemesRead(ctx context.Context, d *schema.ResourceDat
 
 	var diags diag.Diagnostics
 
-	ts, err := c.GetAccountSigningThemes()
+	var lst map[string]ossign.SigningTheme
+	n := 0
+	errN := 0
+
+	// Keep refetching state until a consistent result appears
+	scc := resource.StateChangeConf{
+		Pending:    []string{"waiting"},
+		Target:     []string{"complete"},
+		Timeout:    3 * time.Minute,
+		MinTimeout: 500 * time.Millisecond,
+		Refresh: func() (result interface{}, state string, err error) {
+			t, apiErr := c.GetAccountSigningThemes()
+
+			if apiErr != nil {
+				if errN > 2 {
+					return nil, "error", apiErr.GetError()
+				} else {
+					errN += 1
+					return nil, "waiting", nil
+				}
+			}
+
+			if lst == nil {
+				lst = t
+				n = 1
+				return t, "waiting", nil
+			}
+
+			eq := true
+			for k1, v1 := range lst {
+				v2 := t[k1]
+
+				if !v1.Equal(v2) {
+					eq = false
+					break
+				}
+			}
+
+			if eq {
+				n += 1
+			} else {
+				lst = t
+				n = 1
+			}
+
+			if n < 3 {
+				return t, "waiting", nil
+			}
+
+			return t, "complete", nil
+		},
+	}
+
+	r, err := scc.WaitForStateContext(ctx)
 
 	if err != nil {
-		diags = append(diags, diag.Diagnostic{
-			Severity: diag.Error,
-			Summary:  err.Summary,
-			Detail:   err.Detail,
-		})
-		return diags
+		return diag.FromErr(err)
 	}
+
+	ts := r.(map[string]ossign.SigningTheme)
 
 	if len(ts) < 1 {
 		d.SetId("")
 		return diags
 	}
 
-	for k, v := range ts {
-		// Only pick the first element that'll be used as the signing theme
-		if err := d.Set("theme", []interface{}{flattenAccountSigningTheme(k, v)}); err != nil {
-			return diag.FromErr(err)
-		}
-		break
-	}
+	diags = append(diags, setResourceData(d, ts)...)
 
 	return diags
 }
@@ -257,7 +318,11 @@ func resourceAccountSigningThemesUpdate(ctx context.Context, d *schema.ResourceD
 	tflog.Trace(ctx, "waiting for the signing theme resource to be updated...")
 
 	scc := getStateChangeConf(c, b)
-	scc.WaitForStateContext(ctx)
+	_, err := scc.WaitForStateContext(ctx)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	tflog.Trace(ctx, "updated the account's signing theme resource")
 
@@ -281,11 +346,15 @@ func resourceAccountSigningThemesDelete(ctx context.Context, d *schema.ResourceD
 	tflog.Trace(ctx, "waiting for the signing theme resource to be deleted...")
 
 	scc := getStateChangeConf(c, map[string]ossign.SigningTheme{})
-	scc.WaitForStateContext(ctx)
+	_, err := scc.WaitForStateContext(ctx)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	tflog.Trace(ctx, "deleted the account's signing theme resource")
 
 	d.SetId("")
 
-	return resourceAccountSigningThemesRead(ctx, d, meta)
+	return diags
 }
