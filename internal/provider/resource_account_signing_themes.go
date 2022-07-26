@@ -145,7 +145,7 @@ func getStateChangeConf(c *ossign.ApiClient, e map[string]ossign.SigningTheme) r
 		Target:                    []string{"complete"},
 		Timeout:                   3 * time.Minute,
 		MinTimeout:                300 * time.Millisecond,
-		ContinuousTargetOccurence: 4,
+		ContinuousTargetOccurence: 8,
 		Refresh: func() (result interface{}, state string, err error) {
 			t, apiErr := c.GetAccountSigningThemes()
 
@@ -228,66 +228,11 @@ func resourceAccountSigningThemesRead(ctx context.Context, d *schema.ResourceDat
 
 	var diags diag.Diagnostics
 
-	var lst map[string]ossign.SigningTheme
-	n := 0
-	errN := 0
+	ts, apiErr := c.GetAccountSigningThemes()
 
-	// Keep refetching state until a consistent result appears
-	scc := resource.StateChangeConf{
-		Pending:    []string{"waiting"},
-		Target:     []string{"complete"},
-		Timeout:    3 * time.Minute,
-		MinTimeout: 500 * time.Millisecond,
-		Refresh: func() (result interface{}, state string, err error) {
-			t, apiErr := c.GetAccountSigningThemes()
-
-			if apiErr != nil {
-				if errN > 2 {
-					return nil, "error", apiErr.GetError()
-				} else {
-					errN += 1
-					return nil, "waiting", nil
-				}
-			}
-
-			if lst == nil {
-				lst = t
-				n = 1
-				return t, "waiting", nil
-			}
-
-			eq := true
-			for k1, v1 := range lst {
-				v2 := t[k1]
-
-				if !v1.Equal(v2) {
-					eq = false
-					break
-				}
-			}
-
-			if eq {
-				n += 1
-			} else {
-				lst = t
-				n = 1
-			}
-
-			if n < 3 {
-				return t, "waiting", nil
-			}
-
-			return t, "complete", nil
-		},
+	if apiErr != nil {
+		return diag.FromErr(apiErr.GetError())
 	}
-
-	r, err := scc.WaitForStateContext(ctx)
-
-	if err != nil {
-		return diag.FromErr(err)
-	}
-
-	ts := r.(map[string]ossign.SigningTheme)
 
 	if len(ts) < 1 {
 		d.SetId("")
