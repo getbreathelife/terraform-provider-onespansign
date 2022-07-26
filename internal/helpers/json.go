@@ -2,9 +2,9 @@ package helpers
 
 import (
 	"encoding/json"
+	"math/rand"
 	"strconv"
-
-	"github.com/hashicorp/terraform-plugin-sdk/helper/acctest"
+	"time"
 )
 
 func GetJsonNumber(i int64, base int) json.Number {
@@ -12,5 +12,7 @@ func GetJsonNumber(i int64, base int) json.Number {
 }
 
 func RandJsonNumber(min int, max int) json.Number {
-	return json.Number(strconv.Itoa(acctest.RandIntRange(min, max)))
+	rand.Seed(time.Now().UnixNano())
+	i := rand.Intn(max-min+1) + min
+	return json.Number(strconv.Itoa(i))
 }

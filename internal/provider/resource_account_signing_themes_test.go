@@ -132,8 +132,8 @@ func testAccCheckSigningThemesResourceMatches(m map[string]ossign.SigningTheme) 
 			v2 := m[k1]
 
 			if !cmp.Equal(v1, v2) {
-				fmt.Printf("Obtained first value: %v\n", v1)
-				fmt.Printf("Obtained second value: %v\n", v2)
+				fmt.Printf("Obtained remote value: %v\n", v1)
+				fmt.Printf("Obtained local value: %v\n", v2)
 				return errors.New("Signing themes resource does not match expectation")
 			}
 		}
@@ -172,40 +172,43 @@ func testAccSigningThemesPreTestCleanup() {
 
 	l, apiErr := c.GetAccountSigningThemes()
 
-	if len(l) > 0 {
-		c.DeleteAccountSigningThemes()
-		return
-	}
-
 	if apiErr != nil {
 		panic(apiErr.GetError())
 	}
 
-	scc := resource.StateChangeConf{
-		Delay:                     1 * time.Minute,
-		Pending:                   []string{"waiting"},
-		Target:                    []string{"complete"},
-		Timeout:                   2 * time.Minute,
-		MinTimeout:                300 * time.Millisecond,
-		ContinuousTargetOccurence: 2,
-		Refresh: func() (result interface{}, state string, err error) {
-			t, apiErr := c.GetAccountSigningThemes()
+	if len(l) > 0 {
+		apiErr = c.DeleteAccountSigningThemes()
 
-			if apiErr != nil {
-				return nil, "error", apiErr.GetError()
-			}
+		if apiErr != nil {
+			panic(apiErr.GetError())
+		}
 
-			if len(t) == 0 {
-				return t, "complete", nil
-			}
+		scc := resource.StateChangeConf{
+			Delay:                     30 * time.Second,
+			Pending:                   []string{"waiting"},
+			Target:                    []string{"complete"},
+			Timeout:                   3 * time.Minute,
+			MinTimeout:                300 * time.Millisecond,
+			ContinuousTargetOccurence: 3,
+			Refresh: func() (result interface{}, state string, err error) {
+				t, apiErr := c.GetAccountSigningThemes()
 
-			return t, "waiting", nil
-		},
-	}
+				if apiErr != nil {
+					return nil, "error", apiErr.GetError()
+				}
 
-	_, err := scc.WaitForState()
-	if err != nil {
-		panic(err)
+				if len(t) == 0 {
+					return t, "complete", nil
+				}
+
+				return t, "waiting", nil
+			},
+		}
+
+		_, err := scc.WaitForState()
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 

@@ -123,6 +123,8 @@ func testAccCheckDataManagementPolicyResourceMatches(m ossign.DataManagementPoli
 			p.TransactionRetention.Declined.String() != m.TransactionRetention.Declined.String() ||
 			p.TransactionRetention.OptedOut.String() != m.TransactionRetention.OptedOut.String() ||
 			p.TransactionRetention.Expired.String() != m.TransactionRetention.Expired.String() {
+			fmt.Printf("Obtained remote value: %v\n", p)
+			fmt.Printf("Obtained local value: %v\n", m)
 			return errors.New("Data management policy resource does not match expectation")
 		}
 
