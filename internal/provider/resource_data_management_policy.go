@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/getbreathelife/terraform-provider-onespansign/internal/helpers"
 	"github.com/getbreathelife/terraform-provider-onespansign/pkg/ossign"
@@ -235,11 +236,21 @@ func resourceDataManagementPolicyUpdate(ctx context.Context, d *schema.ResourceD
 			TransactionRetention: *tr,
 		}
 
-		if err := c.UpdateDataManagementPolicy(b); err != nil {
+		if apiErr := c.UpdateDataManagementPolicy(b); apiErr != nil {
+			// There are undocumented validation errors that occur sometimes on a seemingly valid payload.
+			// This special handling is added to easily debug the issue.
+			if apiErr.HttpResponse != nil && apiErr.HttpResponse.StatusCode%400 < 100 {
+				diags = append(diags, diag.Diagnostic{
+					Severity: diag.Error,
+					Summary:  apiErr.Summary,
+					Detail:   fmt.Sprintf("4xx error occurred while updating the data management policy: %v", b),
+				})
+			}
+
 			diags = append(diags, diag.Diagnostic{
 				Severity: diag.Error,
-				Summary:  err.Summary,
-				Detail:   err.Detail,
+				Summary:  apiErr.Summary,
+				Detail:   apiErr.Detail,
 			})
 			return diags
 		}
