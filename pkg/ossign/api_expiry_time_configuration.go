@@ -47,7 +47,7 @@ func (c *ApiClient) UpdateExpiryTimeConfiguration(d ExpiryTimeConfiguration) *Ap
 		}
 	}
 
-	res, apiErr := c.makeApiRequest("PUT", "/api/dataRetentionSettings/dataManagementPolicy", bytes.NewBuffer(body))
+	res, apiErr := c.makeApiRequest("PUT", "/api/dataRetentionSettings/expiryTimeConfiguration", bytes.NewBuffer(body))
 
 	if apiErr != nil {
 		return apiErr
