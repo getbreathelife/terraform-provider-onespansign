@@ -27,6 +27,17 @@ type TransactionRetention struct {
 
 	// Number of days to keep expired transactions for
 	Expired json.Number `json:"expired"`
+
+	// Number of days to keep the transactions, calculated from the day that the
+	// transaction is created
+	LifetimeTotal json.Number `json:"lifetimeTotal"`
+
+	// Number of days that incomplete transactions will be stored, calculated from
+	// the day that the transaction is created
+	LifetimeUntilCompletion json.Number `json:"lifetimeUntilCompletion"`
+
+	// Include sent transactions as part of the "incomplete transactions"
+	IncludeSent bool `json:"includeSent"`
 }
 
 type DataManagementPolicy struct {

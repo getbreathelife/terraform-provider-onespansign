@@ -70,6 +70,26 @@ func resourceDataManagementPolicy() *schema.Resource {
 							Required:         true,
 							ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(0)),
 						},
+						"lifetime_total": {
+							Description:      "Number of days to keep the transactions, calculated from the day that the transaction is created.",
+							Type:             schema.TypeInt,
+							Optional:         true,
+							Default:          120,
+							ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(0)),
+						},
+						"lifetime_until_completion": {
+							Description:      "Number of days that incomplete transactions will be stored, calculated from the day that the transaction is created.",
+							Type:             schema.TypeInt,
+							Optional:         true,
+							Default:          120,
+							ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(0)),
+						},
+						"include_sent": {
+							Description: "Include sent transactions as part of the \"incomplete transactions\".",
+							Type:        schema.TypeBool,
+							Optional:    true,
+							Default:     false,
+						},
 					},
 				},
 			},
@@ -81,18 +101,59 @@ func resourceDataManagementPolicy() *schema.Resource {
 	}
 }
 
-func flattenTransactionRetention(tr ossign.TransactionRetention) interface{} {
+func flattenTransactionRetention(tr ossign.TransactionRetention) (interface{}, error) {
+	var err error
+
 	trm := make(map[string]interface{}, 7)
 
-	trm["draft"] = tr.Draft
-	trm["sent"] = tr.Sent
-	trm["completed"] = tr.Completed
-	trm["archived"] = tr.Archived
-	trm["declined"] = tr.Declined
-	trm["opted_out"] = tr.OptedOut
-	trm["expired"] = tr.Expired
+	trm["draft"], err = helpers.GetInt(tr.Draft)
+	if err != nil {
+		return trm, err
+	}
 
-	return trm
+	trm["sent"], err = helpers.GetInt(tr.Sent)
+	if err != nil {
+		return trm, err
+	}
+
+	trm["completed"], err = helpers.GetInt(tr.Completed)
+	if err != nil {
+		return trm, err
+	}
+
+	trm["archived"], err = helpers.GetInt(tr.Archived)
+	if err != nil {
+		return trm, err
+	}
+
+	trm["declined"], err = helpers.GetInt(tr.Declined)
+	if err != nil {
+		return trm, err
+	}
+
+	trm["opted_out"], err = helpers.GetInt(tr.OptedOut)
+	if err != nil {
+		return trm, err
+	}
+
+	trm["expired"], err = helpers.GetInt(tr.Expired)
+	if err != nil {
+		return trm, err
+	}
+
+	trm["lifetime_total"], err = helpers.GetInt(tr.LifetimeTotal)
+	if err != nil {
+		return trm, err
+	}
+
+	trm["lifetime_until_completion"], err = helpers.GetInt(tr.LifetimeUntilCompletion)
+	if err != nil {
+		return trm, err
+	}
+
+	trm["include_sent"] = tr.IncludeSent
+
+	return trm, nil
 }
 
 func resourceDataManagementPolicyCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -119,18 +180,22 @@ func resourceDataManagementPolicyRead(ctx context.Context, d *schema.ResourceDat
 
 	var diags diag.Diagnostics
 
-	dmp, err := c.GetDataManagementPolicy()
+	dmp, apiErr := c.GetDataManagementPolicy()
 
-	if err != nil {
+	if apiErr != nil {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
-			Summary:  err.Summary,
-			Detail:   err.Detail,
+			Summary:  apiErr.Summary,
+			Detail:   apiErr.Detail,
 		})
 		return diags
 	}
 
-	tr := flattenTransactionRetention(dmp.TransactionRetention)
+	tr, err := flattenTransactionRetention(dmp.TransactionRetention)
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
 
 	if err := d.Set("transaction_retention", []interface{}{tr}); err != nil {
 		return diag.FromErr(err)
@@ -152,13 +217,16 @@ func resourceDataManagementPolicyUpdate(ctx context.Context, d *schema.ResourceD
 		i := trs[0].(map[string]interface{})
 
 		tr = &ossign.TransactionRetention{
-			Draft:     helpers.GetJsonNumber(int64(i["draft"].(int)), 10),
-			Sent:      helpers.GetJsonNumber(int64(i["sent"].(int)), 10),
-			Completed: helpers.GetJsonNumber(int64(i["completed"].(int)), 10),
-			Archived:  helpers.GetJsonNumber(int64(i["archived"].(int)), 10),
-			Declined:  helpers.GetJsonNumber(int64(i["declined"].(int)), 10),
-			OptedOut:  helpers.GetJsonNumber(int64(i["opted_out"].(int)), 10),
-			Expired:   helpers.GetJsonNumber(int64(i["expired"].(int)), 10),
+			Draft:                   helpers.GetJsonNumber(int64(i["draft"].(int)), 10),
+			Sent:                    helpers.GetJsonNumber(int64(i["sent"].(int)), 10),
+			Completed:               helpers.GetJsonNumber(int64(i["completed"].(int)), 10),
+			Archived:                helpers.GetJsonNumber(int64(i["archived"].(int)), 10),
+			Declined:                helpers.GetJsonNumber(int64(i["declined"].(int)), 10),
+			OptedOut:                helpers.GetJsonNumber(int64(i["opted_out"].(int)), 10),
+			Expired:                 helpers.GetJsonNumber(int64(i["expired"].(int)), 10),
+			LifetimeTotal:           helpers.GetJsonNumber(int64(i["lifetime_total"].(int)), 10),
+			LifetimeUntilCompletion: helpers.GetJsonNumber(int64(i["lifetime_until_completion"].(int)), 10),
+			IncludeSent:             i["include_sent"].(bool),
 		}
 	}
 

@@ -16,3 +16,13 @@ func RandJsonNumber(min int, max int) json.Number {
 	i := rand.Intn(max-min+1) + min
 	return json.Number(strconv.Itoa(i))
 }
+
+func GetInt(n json.Number) (int, error) {
+	i, err := n.Int64()
+
+	if err != nil {
+		return 0, err
+	}
+
+	return int(i), nil
+}
