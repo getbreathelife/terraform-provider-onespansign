@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"net/http"
 	"regexp"
 	"time"
 
@@ -136,20 +137,24 @@ func buildAccountSigningThemes(d *schema.ResourceData) map[string]ossign.Signing
 	return r
 }
 
-// getStateChangeConf gets the configuration struct for the `WaitForState` functions.
+// getSigningThemeStateChangeConf gets the configuration struct for the `WaitForState` functions.
 // c is the OneSpan Sign API client instance, whereas e is the expected map of signing themes state.
-func getStateChangeConf(c *ossign.ApiClient, e map[string]ossign.SigningTheme) resource.StateChangeConf {
+func getSigningThemeStateChangeConf(c *ossign.ApiClient, e map[string]ossign.SigningTheme) resource.StateChangeConf {
 	return resource.StateChangeConf{
 		Delay:                     30 * time.Second,
 		Pending:                   []string{"waiting"},
 		Target:                    []string{"complete"},
-		Timeout:                   3 * time.Minute,
+		Timeout:                   5 * time.Minute,
 		MinTimeout:                300 * time.Millisecond,
 		ContinuousTargetOccurence: 8,
 		Refresh: func() (result interface{}, state string, err error) {
 			t, apiErr := c.GetAccountSigningThemes()
 
 			if apiErr != nil {
+				if apiErr.HttpResponse != nil && apiErr.HttpResponse.StatusCode == http.StatusInternalServerError {
+					// This API somtimes return transient 500 errors, we want to continue waiting when that happens
+					return t, "waiting", nil
+				}
 				return nil, "error", apiErr.GetError()
 			}
 
@@ -209,7 +214,7 @@ func resourceAccountSigningThemesCreate(ctx context.Context, d *schema.ResourceD
 
 	tflog.Trace(ctx, "waiting for the signing theme resource to be created...")
 
-	scc := getStateChangeConf(c, b)
+	scc := getSigningThemeStateChangeConf(c, b)
 	_, err := scc.WaitForStateContext(ctx)
 
 	if err != nil {
@@ -262,7 +267,7 @@ func resourceAccountSigningThemesUpdate(ctx context.Context, d *schema.ResourceD
 
 	tflog.Trace(ctx, "waiting for the signing theme resource to be updated...")
 
-	scc := getStateChangeConf(c, b)
+	scc := getSigningThemeStateChangeConf(c, b)
 	_, err := scc.WaitForStateContext(ctx)
 
 	if err != nil {
@@ -290,7 +295,7 @@ func resourceAccountSigningThemesDelete(ctx context.Context, d *schema.ResourceD
 
 	tflog.Trace(ctx, "waiting for the signing theme resource to be deleted...")
 
-	scc := getStateChangeConf(c, map[string]ossign.SigningTheme{})
+	scc := getSigningThemeStateChangeConf(c, map[string]ossign.SigningTheme{})
 	_, err := scc.WaitForStateContext(ctx)
 
 	if err != nil {
