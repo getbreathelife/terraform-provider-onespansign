@@ -34,19 +34,19 @@ func New(version string) func() *schema.Provider {
 				"environment_url": {
 					Type:             schema.TypeString,
 					Required:         true,
-					Description:      "Environment URL for the OneSpan sign account. For the list of available URLs, please visit [Environment URLs & IP Addresses (OneSpan Sign)](https://community.onespan.com/documentation/onespan-sign/guides/quick-start-guides/developer/environment-urls-ip-addresses).",
+					Description:      "Environment URL for the OneSpan sign account.",
 					ValidateDiagFunc: validation.ToDiagFunc(validation.StringMatch(regexp.MustCompile("^https://(www.)?[a-zA-Z0-9.-]{2,256}.[a-z]{2,4}$"), "Please provide a valid environment URL in the format of <scheme>://<host>")),
 				},
 				"client_id": {
 					Type:        schema.TypeString,
 					Required:    true,
-					Description: "Client ID of the [OneSpan Sign Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) created for this provider.",
+					Description: "Client ID of the client app created for this provider.",
 				},
 				"client_secret": {
 					Type:        schema.TypeString,
 					Required:    true,
 					Sensitive:   true,
-					Description: "Client secret of the [OneSpan Sign Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) created for this provider.",
+					Description: "Client secret of the client app created for this provider.",
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{},

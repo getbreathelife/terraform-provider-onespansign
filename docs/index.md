@@ -6,9 +6,11 @@ description: |-
   
 ---
 
-# onespansign Provider
+# OneSpanSign Provider
 
+This provider interacts with the [OneSpan Sign](https://community.onespan.com/products/onespan-sign) API to configure accounts. To begin, create a [Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) and provide the provider with its **client ID** and **client secret**.
 
+For a list of valid environment URLs, please consult [Environment URLs & IP Addresses](https://community.onespan.com/documentation/onespan-sign/guides/quick-start-guides/developer/environment-urls-ip-addresses).
 
 ## Example Usage
 
@@ -25,6 +27,6 @@ provider "onespansign" {
 
 ### Required
 
-- `client_id` (String) Client ID of the [OneSpan Sign Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) created for this provider.
-- `client_secret` (String, Sensitive) Client secret of the [OneSpan Sign Client App](https://community.onespan.com/documentation/onespan-sign/guides/admin-guides/user/integration) created for this provider.
-- `environment_url` (String) Environment URL for the OneSpan sign account. For the list of available URLs, please visit [Environment URLs & IP Addresses (OneSpan Sign)](https://community.onespan.com/documentation/onespan-sign/guides/quick-start-guides/developer/environment-urls-ip-addresses).
+- `client_id` (String) Client ID of the client app created for this provider.
+- `client_secret` (String, Sensitive) Client secret of the client app created for this provider.
+- `environment_url` (String) Environment URL for the OneSpan sign account.
