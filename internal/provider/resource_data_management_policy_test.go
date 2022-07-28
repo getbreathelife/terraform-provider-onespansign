@@ -40,7 +40,7 @@ func TestAccResourceDataManagementPolicy(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: getTestConfig(fmt.Sprintf(`
 				resource "onespansign_data_management_policy" "foo" {
 					transaction_retention {
 						draft = %s
@@ -55,7 +55,7 @@ func TestAccResourceDataManagementPolicy(t *testing.T) {
 				`, tr.Draft.String(), tr.Sent.String(), tr.Completed.String(),
 					tr.Archived.String(), tr.Declined.String(), tr.OptedOut.String(),
 					tr.Expired.String(),
-				),
+				)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_data_management_policy.foo", "transaction_retention.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -79,7 +79,7 @@ func TestAccResourceDataManagementPolicy(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: getTestConfig(fmt.Sprintf(`
 				resource "onespansign_data_management_policy" "foo" {
 					transaction_retention {
 						draft = %s
@@ -98,7 +98,7 @@ func TestAccResourceDataManagementPolicy(t *testing.T) {
 					tr2.Archived.String(), tr2.Declined.String(), tr2.OptedOut.String(),
 					tr2.Expired.String(), tr2.LifetimeTotal.String(), tr2.LifetimeUntilCompletion.String(),
 					strconv.FormatBool(tr2.IncludeSent),
-				),
+				)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_data_management_policy.foo", "transaction_retention.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -125,7 +125,7 @@ func TestAccResourceDataManagementPolicy(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: getTestConfig(fmt.Sprintf(`
 				resource "onespansign_data_management_policy" "foo" {
 					transaction_retention {
 						draft = %s
@@ -144,7 +144,7 @@ func TestAccResourceDataManagementPolicy(t *testing.T) {
 					tr3.Archived.String(), tr3.Declined.String(), tr3.OptedOut.String(),
 					tr3.Expired.String(), tr3.LifetimeTotal.String(), tr3.LifetimeUntilCompletion.String(),
 					strconv.FormatBool(tr3.IncludeSent),
-				),
+				)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_data_management_policy.foo", "transaction_retention.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -199,13 +199,13 @@ func testAccCheckDataManagementPolicyResourceMatches(m ossign.DataManagementPoli
 
 func generateTransactionRetention() ossign.TransactionRetention {
 	return ossign.TransactionRetention{
-		Draft:                   helpers.RandJsonNumber(30, 120),
-		Sent:                    helpers.RandJsonNumber(30, 120),
-		Completed:               helpers.RandJsonNumber(30, 120),
-		Archived:                helpers.RandJsonNumber(30, 120),
-		Declined:                helpers.RandJsonNumber(30, 120),
-		OptedOut:                helpers.RandJsonNumber(30, 120),
-		Expired:                 helpers.RandJsonNumber(30, 120),
+		Draft:                   helpers.RandJsonNumber(30, 60),
+		Sent:                    helpers.RandJsonNumber(40, 60),
+		Completed:               helpers.RandJsonNumber(30, 60),
+		Archived:                helpers.RandJsonNumber(30, 60),
+		Declined:                helpers.RandJsonNumber(30, 60),
+		OptedOut:                helpers.RandJsonNumber(30, 60),
+		Expired:                 helpers.RandJsonNumber(30, 60),
 		LifetimeTotal:           helpers.RandJsonNumber(60, 120),
 		LifetimeUntilCompletion: helpers.RandJsonNumber(60, 120),
 		IncludeSent:             helpers.RandBool(),

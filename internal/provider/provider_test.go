@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"testing"
@@ -25,7 +26,24 @@ func TestProvider(t *testing.T) {
 	}
 }
 
+func loadEnvVar() {
+	// Load env var from a .env file if it exist
+	godotenv.Load("../../.env")
+
+	if v := os.Getenv("ENV_URL"); v == "" {
+		panic("ENV_URL must be set for acceptance tests")
+	}
+	if v := os.Getenv("CLIENT_ID"); v == "" {
+		panic("CLIENT_ID must be set for acceptance tests")
+	}
+	if v := os.Getenv("CLIENT_SECRET"); v == "" {
+		panic("CLIENT_SECRET must be set for acceptance tests")
+	}
+}
+
 func getTestApiClient() *ossign.ApiClient {
+	loadEnvVar()
+
 	url, err := url.Parse(os.Getenv("ENV_URL"))
 	if err != nil {
 		panic(err)
@@ -38,17 +56,22 @@ func getTestApiClient() *ossign.ApiClient {
 	})
 }
 
-func testAccPreCheck(t *testing.T) {
-	// Load env var from a .env file if it exist
-	godotenv.Load("../../.env")
+func getTestConfig(c string) string {
+	loadEnvVar()
 
-	if v := os.Getenv("ENV_URL"); v == "" {
-		t.Fatal("ENV_URL must be set for acceptance tests")
+	return fmt.Sprintf(`
+	provider onespansign {
+		client_id = "%s"
+		client_secret = "%s"
+		environment_url = "%s"
 	}
-	if v := os.Getenv("CLIENT_ID"); v == "" {
-		t.Fatal("CLIENT_ID must be set for acceptance tests")
-	}
-	if v := os.Getenv("CLIENT_SECRET"); v == "" {
-		t.Fatal("CLIENT_SECRET must be set for acceptance tests")
-	}
+
+	%s
+	`, os.Getenv("CLIENT_ID"), os.Getenv("CLIENT_SECRET"), os.Getenv("ENV_URL"), c)
+}
+
+func testAccPreCheck(t *testing.T) {
+	// You can add code here to run prior to any test case execution, for example assertions
+	// about the appropriate environment variables being set are common to see in a pre-check
+	// function.
 }

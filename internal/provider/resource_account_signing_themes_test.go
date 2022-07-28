@@ -25,7 +25,7 @@ func TestAccResourceSigningThemes(t *testing.T) {
 		Steps: []resource.TestStep{
 			{
 				PreConfig: testAccSigningThemesPreTestCleanup,
-				Config: fmt.Sprintf(`
+				Config: getTestConfig(fmt.Sprintf(`
 				resource "onespansign_account_signing_themes" "foo" {
 					theme {
 						name = "default"
@@ -38,7 +38,7 @@ func TestAccResourceSigningThemes(t *testing.T) {
 						optional_signature_button = "%s"
 					}
 				}
-				`, th.Primary, th.Success, th.Warning, th.Error, th.Info, th.SignatureButton, th.OptionalSignatureButton),
+				`, th.Primary, th.Success, th.Warning, th.Error, th.Info, th.SignatureButton, th.OptionalSignatureButton)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_account_signing_themes.foo", "theme.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -58,7 +58,7 @@ func TestAccResourceSigningThemes(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: getTestConfig(fmt.Sprintf(`
 				resource "onespansign_account_signing_themes" "foo" {
 					theme {
 						name = "default"
@@ -71,7 +71,7 @@ func TestAccResourceSigningThemes(t *testing.T) {
 						optional_signature_button = "%s"
 					}
 				}
-				`, th2.Primary, th2.Success, th2.Warning, th2.Error, th2.Info, th2.SignatureButton, th2.OptionalSignatureButton),
+				`, th2.Primary, th2.Success, th2.Warning, th2.Error, th2.Info, th2.SignatureButton, th2.OptionalSignatureButton)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_account_signing_themes.foo", "theme.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -96,7 +96,7 @@ func TestAccResourceSigningThemes(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: getTestConfig(fmt.Sprintf(`
 				resource "onespansign_account_signing_themes" "foo" {
 					theme {
 						name = "default"
@@ -109,7 +109,7 @@ func TestAccResourceSigningThemes(t *testing.T) {
 						optional_signature_button = "%s"
 					}
 				}
-				`, th2.Primary, th2.Success, th2.Warning, th2.Error, th2.Info, th2.SignatureButton, th2.OptionalSignatureButton),
+				`, th2.Primary, th2.Success, th2.Warning, th2.Error, th2.Info, th2.SignatureButton, th2.OptionalSignatureButton)),
 				Destroy: true,
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckSigningThemesResourceDestroyed,

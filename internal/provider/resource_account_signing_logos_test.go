@@ -34,7 +34,7 @@ func TestAccResourceSigningLogos(t *testing.T) {
 		ProviderFactories: providerFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: fmt.Sprintf(`
+				Config: getTestConfig(fmt.Sprintf(`
 				resource "onespansign_account_signing_logos" "foo" {
 					logo {
 						language = "en"
@@ -46,7 +46,7 @@ func TestAccResourceSigningLogos(t *testing.T) {
 						image = "%s"
 					}
 				}
-				`, testImg, testImg),
+				`, testImg, testImg)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_account_signing_logos.foo", "logo.#", "2"),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -72,14 +72,14 @@ func TestAccResourceSigningLogos(t *testing.T) {
 				),
 			},
 			{
-				Config: fmt.Sprintf(`
+				Config: getTestConfig(fmt.Sprintf(`
 				resource "onespansign_account_signing_logos" "foo" {
 					logo {
 						language = "en"
 						image = "%s"
 					}
 				}
-				`, testImg),
+				`, testImg)),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_account_signing_logos.foo", "logo.#", "1"),
 					resource.TestCheckTypeSetElemNestedAttrs(
@@ -101,7 +101,7 @@ func TestAccResourceSigningLogos(t *testing.T) {
 				ImportStateVerify: true,
 			},
 			{
-				Config: `resource "onespansign_account_signing_logos" "foo" {}`,
+				Config: getTestConfig(`resource "onespansign_account_signing_logos" "foo" {}`),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("onespansign_account_signing_logos.foo", "logo.#", "0"),
 					testAccCheckSigningLogosResourceMatches([]ossign.SigningLogo{}),
