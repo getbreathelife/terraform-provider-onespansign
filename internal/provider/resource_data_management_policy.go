@@ -39,7 +39,8 @@ exist. Having multiple instances may produce unexpected result.`,
 							ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(0)),
 						},
 						"sent": {
-							Description:      "Number of days to keep sent transactions for.",
+							Description: `Number of days to keep sent transactions for.
+							Note that it's not possible to specify an expiry value greater than the retention policy for Sent transactions.`,
 							Type:             schema.TypeInt,
 							Required:         true,
 							ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(0)),

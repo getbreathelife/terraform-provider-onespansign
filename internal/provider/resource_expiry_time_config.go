@@ -27,13 +27,15 @@ exist. Having multiple instances may produce unexpected result.`,
 
 		Schema: map[string]*schema.Schema{
 			"default": {
-				Description:      "Default expiry time for transactions in days. 0 for no limit.",
+				Description: `Default expiry time for transactions in days. 0 for no limit.
+				Note that it's not possible to specify an expiry value greater than the retention policy for Sent transactions.`,
 				Type:             schema.TypeInt,
 				Required:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(0)),
 			},
 			"maximum": {
-				Description:      "Maximum allowed value for expiry time for transactions in days. 0 for no limit.",
+				Description: `Maximum allowed value for expiry time for transactions in days. 0 for no limit.
+				Note that it's not possible to specify an expiry value greater than the retention policy for Sent transactions.`,
 				Type:             schema.TypeInt,
 				Required:         true,
 				ValidateDiagFunc: validation.ToDiagFunc(validation.IntAtLeast(0)),

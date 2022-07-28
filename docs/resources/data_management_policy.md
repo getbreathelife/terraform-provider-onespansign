@@ -56,7 +56,7 @@ Required:
 - `draft` (Number) Number of days to keep drafts for.
 - `expired` (Number) Number of days to keep expired transactions for.
 - `opted_out` (Number) Number of days to keep opted-out transactions for.
-- `sent` (Number) Number of days to keep sent transactions for.
+- `sent` (Number) Number of days to keep sent transactions for. Note that it's not possible to specify an expiry value greater than the retention policy for Sent transactions.
 
 Optional:
 

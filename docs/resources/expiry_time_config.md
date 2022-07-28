@@ -15,6 +15,8 @@ OneSpan Sign account's expiry configurations.
 Please note that this resource is a singleton, which means that only one instance of this resource should
 exist. Having multiple instances may produce unexpected result.
 
+It's also not possible to specify an expiry value greater than the retention policy for Sent transactions.
+
 ## Example Usage
 
 ```terraform
