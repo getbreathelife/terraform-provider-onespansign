@@ -17,7 +17,10 @@ import (
 
 func resourceAccountSigningThemes() *schema.Resource {
 	return &schema.Resource{
-		Description: "OneSpan Sign account's customized signing themes.",
+		Description: `OneSpan Sign account's customized signing themes.
+		
+Please note that this resource is a singleton, which means that only one instance of this resource should
+exist. Having multiple instances may produce unexpected result.`,
 
 		CreateContext: resourceAccountSigningThemesCreate,
 		ReadContext:   resourceAccountSigningThemesRead,

@@ -19,8 +19,8 @@ func resourceAccountSigningLogos() *schema.Resource {
 		// This description is used by the documentation generator and the language server.
 		Description: `OneSpan Sign account's customized logos used during the Signing Ceremony.
 		
-		Please note that this resource is a singleton, which means that only one instance of this resource should
-		exist. Having multiple instances may produce unexpected result.`,
+Please note that this resource is a singleton, which means that only one instance of this resource should
+exist. Having multiple instances may produce unexpected result.`,
 
 		CreateContext: resourceAccountSigningLogosCreate,
 		ReadContext:   resourceAccountSigningLogosRead,

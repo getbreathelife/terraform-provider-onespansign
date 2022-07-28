@@ -15,7 +15,10 @@ import (
 
 func resourceExpiryTimeConfig() *schema.Resource {
 	return &schema.Resource{
-		Description: "OneSpan Sign account's expiry configurations.",
+		Description: `OneSpan Sign account's expiry configurations.
+		
+Please note that this resource is a singleton, which means that only one instance of this resource should
+exist. Having multiple instances may produce unexpected result.`,
 
 		CreateContext: resourceExpiryTimeConfigCreate,
 		ReadContext:   resourceExpiryTimeConfigRead,

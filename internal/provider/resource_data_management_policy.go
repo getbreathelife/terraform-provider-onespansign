@@ -14,7 +14,10 @@ import (
 
 func resourceDataManagementPolicy() *schema.Resource {
 	return &schema.Resource{
-		Description: "OneSpan Sign account's data management policy.",
+		Description: `OneSpan Sign account's data management policy.
+
+Please note that this resource is a singleton, which means that only one instance of this resource should
+exist. Having multiple instances may produce unexpected result.`,
 
 		CreateContext: resourceDataManagementPolicyCreate,
 		ReadContext:   resourceDataManagementPolicyRead,
