@@ -69,12 +69,12 @@ func validateFields(ctx context.Context, d *schema.ResourceData, meta interface{
 // c is the OneSpan Sign API client instance, whereas e is the expected expiry time configuration state.
 func getExpiryTimeConfigStateChangeConf(c *ossign.ApiClient, e ossign.ExpiryTimeConfiguration) resource.StateChangeConf {
 	return resource.StateChangeConf{
-		Delay:                     10 * time.Second,
+		Delay:                     30 * time.Second,
 		Pending:                   []string{"waiting"},
 		Target:                    []string{"complete"},
-		Timeout:                   3 * time.Minute,
+		Timeout:                   5 * time.Minute,
 		MinTimeout:                300 * time.Millisecond,
-		ContinuousTargetOccurence: 5,
+		ContinuousTargetOccurence: 8,
 		Refresh: func() (result interface{}, state string, err error) {
 			t, apiErr := c.GetExpiryTimeConfiguration()
 
