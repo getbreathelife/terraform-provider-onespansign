@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func GetJsonNumber(i int64, base int) json.Number {
+func GetJsonNumber(i int64) json.Number {
 	return json.Number(strconv.FormatInt(i, 10))
 }
 

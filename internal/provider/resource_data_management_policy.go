@@ -222,15 +222,15 @@ func resourceDataManagementPolicyUpdate(ctx context.Context, d *schema.ResourceD
 		i := trs[0].(map[string]interface{})
 
 		tr = &ossign.TransactionRetention{
-			Draft:                   helpers.GetJsonNumber(int64(i["draft"].(int)), 10),
-			Sent:                    helpers.GetJsonNumber(int64(i["sent"].(int)), 10),
-			Completed:               helpers.GetJsonNumber(int64(i["completed"].(int)), 10),
-			Archived:                helpers.GetJsonNumber(int64(i["archived"].(int)), 10),
-			Declined:                helpers.GetJsonNumber(int64(i["declined"].(int)), 10),
-			OptedOut:                helpers.GetJsonNumber(int64(i["opted_out"].(int)), 10),
-			Expired:                 helpers.GetJsonNumber(int64(i["expired"].(int)), 10),
-			LifetimeTotal:           helpers.GetJsonNumber(int64(i["lifetime_total"].(int)), 10),
-			LifetimeUntilCompletion: helpers.GetJsonNumber(int64(i["lifetime_until_completion"].(int)), 10),
+			Draft:                   helpers.GetJsonNumber(int64(i["draft"].(int))),
+			Sent:                    helpers.GetJsonNumber(int64(i["sent"].(int))),
+			Completed:               helpers.GetJsonNumber(int64(i["completed"].(int))),
+			Archived:                helpers.GetJsonNumber(int64(i["archived"].(int))),
+			Declined:                helpers.GetJsonNumber(int64(i["declined"].(int))),
+			OptedOut:                helpers.GetJsonNumber(int64(i["opted_out"].(int))),
+			Expired:                 helpers.GetJsonNumber(int64(i["expired"].(int))),
+			LifetimeTotal:           helpers.GetJsonNumber(int64(i["lifetime_total"].(int))),
+			LifetimeUntilCompletion: helpers.GetJsonNumber(int64(i["lifetime_until_completion"].(int))),
 			IncludeSent:             i["include_sent"].(bool),
 		}
 	}

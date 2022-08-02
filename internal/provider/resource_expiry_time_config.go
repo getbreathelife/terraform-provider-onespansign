@@ -152,8 +152,8 @@ func resourceExpiryTimeConfigUpdate(ctx context.Context, d *schema.ResourceData,
 	}
 
 	b := ossign.ExpiryTimeConfiguration{
-		Default: helpers.GetJsonNumber(int64(d.Get("default").(int)), 10),
-		Maximum: helpers.GetJsonNumber(int64(d.Get("maximum").(int)), 10),
+		Default: helpers.GetJsonNumber(int64(d.Get("default").(int))),
+		Maximum: helpers.GetJsonNumber(int64(d.Get("maximum").(int))),
 	}
 
 	if err := c.UpdateExpiryTimeConfiguration(b); err != nil {
