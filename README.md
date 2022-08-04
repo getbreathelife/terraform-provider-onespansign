@@ -7,6 +7,10 @@ A Terraform provider to configure [OneSpan Sign accounts](https://www.onespan.co
 -	[Terraform](https://www.terraform.io/downloads.html) >= 0.13.x
 -	[Go](https://golang.org/doc/install) >= 1.17
 
+## Using the provider
+
+Please consult the [plugin documentation](./docs/index.md).
+
 ## Building The Provider
 
 1. Clone the repository
@@ -29,10 +33,6 @@ go mod tidy
 ```
 
 Then commit the changes to `go.mod` and `go.sum`.
-
-## Using the provider
-
-Fill this in for each provider
 
 ## Developing the Provider
 
