@@ -54,7 +54,7 @@ func validateFields(ctx context.Context, d *schema.ResourceData, meta interface{
 	dft := d.Get("default").(int)
 	mxm := d.Get("maximum").(int)
 
-	if dft > mxm {
+	if mxm > 0 && dft > mxm {
 		diags = append(diags, diag.Diagnostic{
 			Severity: diag.Error,
 			Summary:  "validation error",

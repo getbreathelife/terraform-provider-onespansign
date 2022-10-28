@@ -16,8 +16,14 @@ import (
 func TestAccResourceExpiryTimeConfig(t *testing.T) {
 	etc := generateExpiryTimeConfig()
 
-	// Default config
+	// No maximum config
 	etc2 := ossign.ExpiryTimeConfiguration{
+		Default: json.Number("10"),
+		Maximum: json.Number("0"),
+	}
+
+	// Default config
+	etc3 := ossign.ExpiryTimeConfiguration{
 		Default: json.Number("0"),
 		Maximum: json.Number("0"),
 	}
@@ -55,6 +61,19 @@ func TestAccResourceExpiryTimeConfig(t *testing.T) {
 					resource.TestCheckResourceAttr("onespansign_expiry_time_config.foo", "default", etc2.Default.String()),
 					resource.TestCheckResourceAttr("onespansign_expiry_time_config.foo", "maximum", etc2.Maximum.String()),
 					testAccCheckExpiryTimeConfigResourceMatches(etc2),
+				),
+			},
+			{
+				Config: getTestConfig(fmt.Sprintf(`
+				resource "onespansign_expiry_time_config" "foo" {
+					default = %s
+					maximum = %s
+				}
+				`, etc3.Default.String(), etc3.Maximum.String())),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("onespansign_expiry_time_config.foo", "default", etc3.Default.String()),
+					resource.TestCheckResourceAttr("onespansign_expiry_time_config.foo", "maximum", etc3.Maximum.String()),
+					testAccCheckExpiryTimeConfigResourceMatches(etc3),
 				),
 			},
 		},
