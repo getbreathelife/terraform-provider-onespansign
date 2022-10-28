@@ -39,12 +39,3 @@ jobs:
           ENV_URL: ${{ secrets.TF_ACC_ENV_URL }}
           CLIENT_ID: ${{ secrets.TF_ACC_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.TF_ACC_CLIENT_SECRET }}
-  unit:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
-        with:
-          go-version: '1.17'
-      - run: go test -v -cover ./...
